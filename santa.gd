@@ -5,7 +5,7 @@ extends Area2D
 
 func _process(delta):
 	var velocity = Vector2.ZERO # The player's movement vector.
-	var collider = null
+	var collider: Object = null
 
 	if target == position:
 		velocity.y = Input.get_axis("ui_up", "ui_down")
@@ -31,6 +31,10 @@ func _process(delta):
 		# end if
 		if collider == null:
 			target = position + velocity * 40
+		else:
+			if collider.has_method("push") and Input.is_key_pressed(KEY_SPACE):
+				collider.push(velocity)
+			# end if
 		# end if
 	# end if
 
