@@ -1,23 +1,13 @@
-[gd_scene load_steps=5 format=3 uid="uid://di0gtn0y48usn"]
+[gd_scene load_steps=4 format=3 uid="uid://di0gtn0y48usn"]
 
 [ext_resource type="PackedScene" uid="uid://dlbph0y3qrme5" path="res://background.tscn" id="1_0vndp"]
 [ext_resource type="Script" path="res://test.gd" id="1_c3vlf"]
-[ext_resource type="PackedScene" uid="uid://b8htelo7q0nqd" path="res://ice_block.tscn" id="1_vb88i"]
 [ext_resource type="PackedScene" uid="uid://psiwsixrj8il" path="res://santa.tscn" id="2_dhdg8"]
 
 [node name="test" type="Node2D"]
 script = ExtResource("1_c3vlf")
 
 [node name="Background" parent="." instance=ExtResource("1_0vndp")]
-
-[node name="IceBlock" parent="." instance=ExtResource("1_vb88i")]
-position = Vector2(200, 80)
-
-[node name="IceBlock2" parent="." instance=ExtResource("1_vb88i")]
-position = Vector2(120, 80)
-
-[node name="IceBlock3" parent="." instance=ExtResource("1_vb88i")]
-position = Vector2(120, 40)
 
 [node name="Santa" parent="." instance=ExtResource("2_dhdg8")]
 position = Vector2(40, 40)

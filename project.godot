@@ -20,6 +20,11 @@ config/icon="res://icon.svg"
 window/size/viewport_width=800
 window/size/viewport_height=800
 
+[editor]
+
+movie_writer/movie_file="/home/alain/Projects/godot/pingoo/pingoo.avi"
+movie_writer/fps=25
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
