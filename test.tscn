@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://di0gtn0y48usn"]
+
+[ext_resource type="PackedScene" uid="uid://b8htelo7q0nqd" path="res://ice_block.tscn" id="1_vb88i"]
+[ext_resource type="PackedScene" uid="uid://psiwsixrj8il" path="res://santa.tscn" id="2_dhdg8"]
+
+[node name="test" type="Node2D"]
+
+[node name="IceBlock" parent="." instance=ExtResource("1_vb88i")]
+position = Vector2(0, 80)
+
+[node name="IceBlock2" parent="." instance=ExtResource("1_vb88i")]
+position = Vector2(120, 80)
+
+[node name="IceBlock3" parent="." instance=ExtResource("1_vb88i")]
+position = Vector2(120, 40)
+
+[node name="Santa" parent="." instance=ExtResource("2_dhdg8")]
+position = Vector2(40, 0)
