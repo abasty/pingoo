@@ -176,7 +176,6 @@ animations = [{
 size = Vector2(36, 36)
 
 [node name="IceBlock" type="Area2D"]
-monitoring = false
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(20, 20)

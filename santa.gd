@@ -1,14 +1,14 @@
 extends Area2D
 
-@export var speed = 240 # How fast the player will move (pixels/sec).
+@export var speed = 240
 var target = Vector2.ZERO
-var entred_zones = [[], [], [], [], []] # Try to get them from childs
 
 func _ready():
 	target = position
 
 func _process(delta):
 	var velocity = Vector2.ZERO # The player's movement vector.
+	var collider = null
 
 	if target == position:
 		velocity.y = Input.get_axis("ui_up", "ui_down")
@@ -17,17 +17,24 @@ func _process(delta):
 			velocity.y = 0
 			if velocity.x < 0:
 				$AnimatedSprite2D.animation = "move-left"
+				collider = $LeftRay.get_collider()
 			else:
 				$AnimatedSprite2D.animation = "move-right"
+				collider = $RightRay.get_collider()
 			# end if
-		else:
+		# end if
+		if velocity.y != 0:
 			if velocity.y < 0:
 				$AnimatedSprite2D.animation = "move-up"
+				collider = $UpRay.get_collider()
 			else:
 				$AnimatedSprite2D.animation = "move-down"
+				collider = $DownRay.get_collider()
 			# end if
-		# edn if
-		target = position + velocity * 40
+		# end if
+		if collider == null:
+			target = position + velocity * 40
+		# end if
 	# end if
 
 	velocity = (target - position).normalized()
@@ -44,11 +51,3 @@ func _process(delta):
 	# end if
 
 # end func _process
-
-func _on_area_shape_entered(area_rid, area, area_shape_index, local_shape_index):
-	print(area, " + ", local_shape_index)
-# end func _on_area_shape_entered
-
-
-func _on_area_shape_exited(area_rid, area, area_shape_index, local_shape_index):
-	print(area, " - ", local_shape_index)
