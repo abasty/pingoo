@@ -17,7 +17,7 @@ position = Vector2(20, 20)
 shape = SubResource("RectangleShape2D_agqtt")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(20, 20)
 texture = ExtResource("1_xi118")
+centered = false
 hframes = 4
 vframes = 4

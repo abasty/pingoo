@@ -178,10 +178,10 @@ size = Vector2(36, 36)
 [node name="IceBlock" type="Area2D"]
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-position = Vector2(20, 20)
 sprite_frames = SubResource("SpriteFrames_banx7")
 animation = &"idle"
 frame_progress = 0.681089
+centered = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(20, 20)
