@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3 uid="uid://cfg5ly50o6chb"]
+
+[ext_resource type="Script" path="res://tree.gd" id="1_4f2uf"]
+[ext_resource type="Texture2D" uid="uid://bjxxtmi1mlm51" path="res://media/trees.png" id="1_xi118"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_agqtt"]
+size = Vector2(36, 36)
+
+[node name="Tree" type="Area2D"]
+monitoring = false
+monitorable = false
+script = ExtResource("1_4f2uf")
+metadata/_edit_group_ = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(20, 20)
+shape = SubResource("RectangleShape2D_agqtt")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(20, 20)
+texture = ExtResource("1_xi118")
+hframes = 4
+vframes = 4

@@ -1,10 +1,7 @@
 extends Area2D
 
 @export var speed = 240
-var target = Vector2.ZERO
-
-func _ready():
-	target = position
+@onready var target = position
 
 func _process(delta):
 	var velocity = Vector2.ZERO # The player's movement vector.
