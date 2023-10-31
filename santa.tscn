@@ -137,27 +137,3 @@ shape = SubResource("RectangleShape2D_sw6y3")
 sprite_frames = SubResource("SpriteFrames_0xmvs")
 animation = &"move-up"
 centered = false
-
-[node name="DownRay" type="RayCast2D" parent="."]
-position = Vector2(20, 20)
-target_position = Vector2(0, 40)
-collide_with_areas = true
-collide_with_bodies = false
-
-[node name="UpRay" type="RayCast2D" parent="."]
-position = Vector2(20, 20)
-target_position = Vector2(0, -40)
-collide_with_areas = true
-collide_with_bodies = false
-
-[node name="LeftRay" type="RayCast2D" parent="."]
-position = Vector2(20, 20)
-target_position = Vector2(-40, 0)
-collide_with_areas = true
-collide_with_bodies = false
-
-[node name="RightRay" type="RayCast2D" parent="."]
-position = Vector2(20, 20)
-target_position = Vector2(40, 0)
-collide_with_areas = true
-collide_with_bodies = false
