@@ -16,11 +16,6 @@ func _ready():
 
 func move(delta):
 	if target == position:
-		if velocity.x < 0:
-			sprite.animation = "left"
-		elif velocity.x > 0:
-			sprite.animation = "right"
-		# end if
 		ray.from = global_position + Vector2(20, 20)
 		ray.to = ray.from + velocity * 40
 		var collider = get_world_2d().direct_space_state.intersect_ray(ray)
@@ -35,7 +30,11 @@ func move(delta):
 	velocity = (target - position).normalized()
 
 	if velocity != Vector2.ZERO:
-		if velocity.x != 0:
+		if velocity.x < 0:
+			sprite.animation = "left"
+			sprite.play()
+		elif velocity.x > 0:
+			sprite.animation = "right"
 			sprite.play()
 		# end if
 		position += (velocity * speed * delta).limit_length((target - position).length())
