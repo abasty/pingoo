@@ -2,11 +2,11 @@ extends Area2D
 
 @export var speed = 240
 @onready var target = position
-var ray
+@onready var ray = PhysicsRayQueryParameters2D.create(Vector2.ZERO, Vector2.ZERO, -1, [self])
 
 func _ready():
-	ray = PhysicsRayQueryParameters2D.create(Vector2.ZERO, Vector2.ZERO, -1, [self])
 	ray.collide_with_areas = true
+# end func
 
 func _process(delta):
 	var velocity = Vector2.ZERO
