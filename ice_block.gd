@@ -6,6 +6,11 @@ enum State { IDLE, MOVING }
 @onready var state = State.IDLE
 @onready var velocity = Vector2.ZERO
 @onready var target = position
+var ray
+
+func _ready():
+	ray = PhysicsRayQueryParameters2D.create(Vector2.ZERO, Vector2.ZERO, -1, [self])
+	ray.collide_with_areas = true
 
 func move(delta):
 	if target == position:
@@ -20,10 +25,9 @@ func move(delta):
 			$AnimatedSprite2D.animation = "move-down"
 		# end if
 
-		var origin = global_position + Vector2(20, 20)
-		var query = PhysicsRayQueryParameters2D.create(origin, origin + velocity * 40, -1, [self])
-		query.collide_with_areas = true
-		var collider = get_world_2d().direct_space_state.intersect_ray(query)
+		ray.from = global_position + Vector2(20, 20)
+		ray.to = ray.from + velocity * 40
+		var collider = get_world_2d().direct_space_state.intersect_ray(ray)
 
 		if collider.is_empty():
 			target = position + velocity * 40
