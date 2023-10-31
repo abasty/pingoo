@@ -11,18 +11,19 @@ var ray
 func _ready():
 	ray = PhysicsRayQueryParameters2D.create(Vector2.ZERO, Vector2.ZERO, -1, [self])
 	ray.collide_with_areas = true
+	$AnimatedSprite2D.animation = "idle"
 
 func move(delta):
 	if target == position:
 		if velocity.x < 0:
-			$AnimatedSprite2D.animation = "move-left"
+			$AnimatedSprite2D.animation = "left"
 		elif velocity.x > 0:
-			$AnimatedSprite2D.animation = "move-right"
+			$AnimatedSprite2D.animation = "right"
 		# end if
 		if velocity.y < 0:
-			$AnimatedSprite2D.animation = "move-up"
+			$AnimatedSprite2D.animation = "idle"
 		elif velocity.y > 0:
-			$AnimatedSprite2D.animation = "move-down"
+			$AnimatedSprite2D.animation = "idle"
 		# end if
 
 		ray.from = global_position + Vector2(20, 20)
@@ -33,6 +34,7 @@ func move(delta):
 			target = position + velocity * 40
 		else:
 			state = State.IDLE
+			$AnimatedSprite2D.animation = "idle"
 		# end if
 	# end if
 
