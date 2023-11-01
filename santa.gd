@@ -1,6 +1,6 @@
 extends Area2D
 
-@export var speed = 240
+@export var speed = 200
 @onready var target = position
 @onready var sprite = get_node("AnimatedSprite2D")
 @onready var ray = PhysicsRayQueryParameters2D.create(Vector2.ZERO, Vector2.ZERO, -1, [self])
