@@ -2,6 +2,7 @@ extends Area2D
 
 @export var speed = 240
 @onready var target = position
+@onready var sprite = get_node("AnimatedSprite2D")
 @onready var ray = PhysicsRayQueryParameters2D.create(Vector2.ZERO, Vector2.ZERO, -1, [self])
 
 func _ready():
@@ -17,16 +18,16 @@ func _process(delta):
 		if velocity.x != 0:
 			velocity.y = 0
 			if velocity.x < 0:
-				$AnimatedSprite2D.animation = "move-left"
+				sprite.animation = "move-left"
 			else:
-				$AnimatedSprite2D.animation = "move-right"
+				sprite.animation = "move-right"
 			# end if
 		# end if
 		if velocity.y != 0:
 			if velocity.y < 0:
-				$AnimatedSprite2D.animation = "move-up"
+				sprite.animation = "move-up"
 			else:
-				$AnimatedSprite2D.animation = "move-down"
+				sprite.animation = "move-down"
 			# end if
 		# end if
 
@@ -47,14 +48,14 @@ func _process(delta):
 	velocity = (target - position).normalized()
 
 	if velocity != Vector2.ZERO:
-		$AnimatedSprite2D.play()
+		sprite.play()
 		position += (velocity * speed * delta).limit_length((target - position).length())
 		if position.is_equal_approx(target):
 			position = target
 		# end if
 	else:
-		$AnimatedSprite2D.frame = 0
-		$AnimatedSprite2D.stop()
+		sprite.frame = 0
+		sprite.stop()
 	# end if
 
 # end func _process
