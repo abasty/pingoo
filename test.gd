@@ -2,20 +2,31 @@ extends Node2D
 
 var tree_scene = preload("res://tree.tscn")
 var block_scene = preload("res://ice_block.tscn")
+var gift_scene = preload("res://gift.tscn")
+var blocks = []
 
 func add_scene_child(scene, c: int, l: int):
 	var instance = scene.instantiate()
 	instance.position = Vector2(c * 40, l * 40)
 	add_child(instance)
-# end func
+	return instance
+# end func add_scene_child
 
 func add_tree_child(c: int, l: int):
 	add_scene_child(tree_scene, c, l)
-# end func
+# end func add_tree_child
+
+func add_gift_child(c: int, l: int):
+	add_scene_child(gift_scene, c, l)
+# end func add_gift_child
 
 func add_block_child(c: int, l: int):
-	add_scene_child(block_scene, c, l)
-# end func
+	var block = add_scene_child(block_scene, c, l)
+	# Append to the list of blocks if c != 1 and l != 1 and c != 19 and l != 19
+	if c != 1 and l != 1 and c != 19 and l != 19:
+		blocks.append(block)
+	# end if
+# end func add_block_child
 
 func _ready():
 	for i in range(20):
@@ -35,4 +46,19 @@ func _ready():
 			# end match
 		# end for
 	# end for
-# end func
+
+	for i in range(3):
+		var block = blocks[randi() % blocks.size()]
+		add_gift_child(block.position.x / 40, block.position.y / 40)
+		block.queue_free()
+		blocks.erase(block)
+	# end for
+
+	# Choose 5 blocks and change them into ice blocks
+	for i in range(5):
+		var block = blocks[randi() % blocks.size()]
+		add_tree_child(block.position.x / 40, block.position.y / 40)
+		block.queue_free()
+		blocks.erase(block)
+	# end for
+# end func _ready

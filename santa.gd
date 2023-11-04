@@ -7,7 +7,7 @@ extends Area2D
 
 func _ready():
 	ray.collide_with_areas = true
-# end func
+# end func _ready
 
 func _process(delta):
 	var velocity = Vector2.ZERO

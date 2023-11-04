@@ -1,6 +1,8 @@
 extends Area2D
 
-enum State { IDLE, MOVING, BREAKING }
+enum State { IDLE, MOVING }
+
+
 
 @onready var speed = 600
 @onready var state = State.IDLE
@@ -11,7 +13,6 @@ enum State { IDLE, MOVING, BREAKING }
 
 func _ready():
 	ray.collide_with_areas = true
-	sprite.animation = "idle"
 # end func _ready
 
 func move(delta):
@@ -30,19 +31,10 @@ func move(delta):
 	velocity = (target - position).normalized()
 
 	if velocity != Vector2.ZERO:
-		if velocity.x < 0:
-			sprite.animation = "left"
-			sprite.play()
-		elif velocity.x > 0:
-			sprite.animation = "right"
-			sprite.play()
-		# end if
 		position += (velocity * speed * delta).limit_length((target - position).length())
 		if position.is_equal_approx(target):
 			position = target
 		# end if
-	else:
-		sprite.pause()
 	# end if
 # end func move
 
@@ -56,17 +48,5 @@ func push(v: Vector2):
 	if state == State.IDLE:
 		state = State.MOVING
 		velocity = v
-		ray.from = global_position + Vector2(20, 20)
-		ray.to = ray.from + velocity * 40
-		var collider = get_world_2d().direct_space_state.intersect_ray(ray)
-		if not collider.is_empty():
-			state = State.BREAKING
-			sprite.animation = "destroy"
-			sprite.play()
-		# end if
 	# end if
 # end func push
-
-func _on_animated_sprite_2d_animation_finished():
-	queue_free()
-# end func _on_animated_sprite_2d_animation_finished

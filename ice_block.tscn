@@ -178,6 +178,7 @@ size = Vector2(36, 36)
 
 [node name="IceBlock" type="Area2D"]
 script = ExtResource("1_sslsl")
+metadata/_edit_group_ = true
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_banx7")
