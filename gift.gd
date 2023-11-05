@@ -2,8 +2,6 @@ extends Area2D
 
 enum State { IDLE, MOVING }
 
-
-
 @onready var speed = 600
 @onready var state = State.IDLE
 @onready var velocity = Vector2.ZERO
@@ -34,6 +32,41 @@ func move(delta):
 		position += (velocity * speed * delta).limit_length((target - position).length())
 		if position.is_equal_approx(target):
 			position = target
+		# end if
+	else:
+		# Test if all gifts are on the same line using the "all" method
+		var gifts = get_tree().get_nodes_in_group("gifts")
+		var first = gifts[0].global_position
+		if gifts.all(func(gift): return gift.global_position.y == first.y):
+			# Sort gifts by x position
+			gifts.sort_custom(func(a, b): return a.global_position.x < b.global_position.x)
+			# Test if each gift is 40 pixels away from the previous one
+			var aligned = true
+			for i in range(1, gifts.size()):
+				if gifts[i].global_position.x - gifts[i - 1].global_position.x != 40:
+					aligned = false
+					break
+				# end if
+			# end for
+			print(aligned)
+			if aligned:
+				print("WIN !")
+			# end if
+		elif gifts.all(func(gift): return gift.global_position.x == first.x):
+			# Sort gifts by y position
+			gifts.sort_custom(func(a, b): return a.global_position.y < b.global_position.y)
+			# Test if each gift is 40 pixels away from the previous one
+			var aligned = true
+			for i in range(1, gifts.size()):
+				if gifts[i].global_position.y - gifts[i - 1].global_position.y != 40:
+					aligned = false
+					break
+				# end if
+			# end for
+			print(aligned)
+			if aligned:
+				print("WIN !")
+			# end if
 		# end if
 	# end if
 # end func move
