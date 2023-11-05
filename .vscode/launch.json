@@ -10,10 +10,11 @@
             "request": "launch",
             "project": "${workspaceFolder}",
             "port": 6006,
-            "address": "tcp://127.0.0.1",
+            "debugServer": 6006,
+            "address": "127.0.0.1",
             "launch_game_instance": true,
-            "launch_scene": true,
-            "launch_scene_file": "res://scenes/test.tscn",
+            "launch_scene": false,
+            //"launch_scene_file": "res://scenes/test.tscn",
         }
     ]
 }
