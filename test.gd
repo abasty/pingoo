@@ -68,6 +68,9 @@ func _ready():
 		block.queue_free()
 		blocks.erase(block)
 	# end for
+
+	# Make sure the score is on top of everything
+	get_node("Score").set_z_index(1)
 # end func _ready
 
 func _on_gift_moved():

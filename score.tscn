@@ -1,0 +1,56 @@
+[gd_scene load_steps=3 format=3 uid="uid://beb43lt343dt5"]
+
+[ext_resource type="Texture2D" uid="uid://dm2lkhu5i7dy2" path="res://media/numbers.png" id="1_hmcmv"]
+[ext_resource type="Script" path="res://score.gd" id="1_jm2dx"]
+
+[node name="Score" type="Node2D"]
+script = ExtResource("1_jm2dx")
+metadata/_edit_group_ = true
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+self_modulate = Color(1, 0.831373, 0.0901961, 0.788235)
+position = Vector2(29, 0)
+scale = Vector2(0.875, 0.8)
+polygon = PackedVector2Array(-33.1429, 40, 80, 40, 104, 0, -8, 0)
+
+[node name="p5" type="Sprite2D" parent="."]
+position = Vector2(24, 8)
+texture = ExtResource("1_hmcmv")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 52, 12, 16)
+
+[node name="p4" type="Sprite2D" parent="."]
+position = Vector2(36, 8)
+texture = ExtResource("1_hmcmv")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 52, 12, 16)
+
+[node name="p3" type="Sprite2D" parent="."]
+position = Vector2(48, 8)
+texture = ExtResource("1_hmcmv")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 52, 12, 16)
+
+[node name="p2" type="Sprite2D" parent="."]
+position = Vector2(60, 8)
+texture = ExtResource("1_hmcmv")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 52, 12, 16)
+
+[node name="p1" type="Sprite2D" parent="."]
+position = Vector2(72, 8)
+texture = ExtResource("1_hmcmv")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 52, 12, 16)
+
+[node name="p0" type="Sprite2D" parent="."]
+position = Vector2(84, 8)
+texture = ExtResource("1_hmcmv")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 52, 12, 16)
