@@ -6,6 +6,7 @@ var gift_scene = preload("res://gift.tscn")
 
 var blocks = []
 var gifts = []
+var trees = []
 
 func add_scene_child(scene, c: int, l: int):
 	var instance = scene.instantiate()
@@ -15,7 +16,7 @@ func add_scene_child(scene, c: int, l: int):
 # end func add_scene_child
 
 func add_tree_child(c: int, l: int):
-	add_scene_child(tree_scene, c, l)
+	trees.append(add_scene_child(tree_scene, c, l))
 # end func add_tree_child
 
 func add_gift_child(c: int, l: int):
@@ -28,7 +29,7 @@ func add_gift_child(c: int, l: int):
 func add_block_child(c: int, l: int):
 	var block = add_scene_child(block_scene, c, l)
 	# Append the block to the list of blocks if it is not on the border
-	if c > 1 and l > 1 and c < 19 and l < 19:
+	if c > 1 and l > 1 and c < 18 and l < 18:
 		blocks.append(block)
 	# end if
 # end func add_block_child
@@ -88,6 +89,9 @@ func _on_gift_moved():
 	coords = coords.map(func(coord): return coord - first)
 	# Test if the elements are sequential
 	if coords.all(func(coord): return coord == coords.find(coord)):
-		print("**** ALIGNED ****")
+		# Animate trees
+		for tree in trees:
+			tree.bling()
+		# end for
 	# end if
 # end func _on_gift_moved
