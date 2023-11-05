@@ -7,6 +7,8 @@
 
 # VSCode / Godot
 
+* <https://github.com/godotengine/godot-vscode-plugin/issues/389>
+
 * Dans VSCode installer le plugin Godot
 * Dans Godot, ne pas cocher la case "Use External Editor" => On peut éditer
   conjointement dans VSCode et Godot, les fichiers sont synchronisés sur Ctrl+S.

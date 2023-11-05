@@ -11,3 +11,5 @@ script = ExtResource("1_c3vlf")
 
 [node name="Santa" parent="." instance=ExtResource("2_dhdg8")]
 position = Vector2(400, 400)
+
+[connection signal="level_ended" from="." to="." method="_on_level_ended"]

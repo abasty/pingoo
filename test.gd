@@ -1,5 +1,7 @@
 extends Node2D
 
+signal level_ended
+
 var tree_scene = preload("res://tree.tscn")
 var block_scene = preload("res://ice_block.tscn")
 var gift_scene = preload("res://gift.tscn")
@@ -62,3 +64,7 @@ func _ready():
 		blocks.erase(block)
 	# end for
 # end func _ready
+
+
+func _on_level_ended():
+	print("coucou")
