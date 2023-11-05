@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://bjxxtmi1mlm51" path="res://media/trees.png" id="1_xi118"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_agqtt"]
-size = Vector2(36, 36)
+size = Vector2(40, 40)
 
 [node name="Tree" type="Area2D"]
 monitoring = false
