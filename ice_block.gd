@@ -43,6 +43,7 @@ func move(delta):
 		# end if
 	else:
 		sprite.pause()
+		$Moving.stop()
 	# end if
 # end func move
 
@@ -63,6 +64,9 @@ func push(v: Vector2):
 			state = State.BREAKING
 			sprite.animation = "destroy"
 			sprite.play()
+			$Breaking.play()
+		else:
+			$Moving.play()
 		# end if
 	# end if
 # end func push

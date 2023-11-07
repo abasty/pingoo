@@ -96,5 +96,7 @@ func _on_gift_moved():
 		for tree in trees:
 			tree.bling()
 		# end for
+		$Music.stop()
+		$JingleBells.play()
 	# end if
 # end func _on_gift_moved
