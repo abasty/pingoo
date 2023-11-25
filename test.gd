@@ -8,6 +8,8 @@ var blocks = []
 var gifts = []
 var trees = []
 
+signal add_score
+
 func add_scene_child(scene, c: int, l: int):
 	var instance = scene.instantiate()
 	instance.position = Vector2(c * 40, l * 40)
@@ -28,6 +30,7 @@ func add_gift_child(c: int, l: int):
 
 func add_block_child(c: int, l: int):
 	var block = add_scene_child(block_scene, c, l)
+	block.connect("add_score", $Score.add)
 	# Append the block to the list of blocks if it is not on the border
 	if c > 1 and l > 1 and c < 18 and l < 18:
 		blocks.append(block)
@@ -70,7 +73,7 @@ func _ready():
 	# end for
 
 	# Make sure the score is on top of everything
-	get_node("Score").set_z_index(1)
+	$Score.set_z_index(1)
 # end func _ready
 
 func _on_gift_moved():
@@ -98,5 +101,7 @@ func _on_gift_moved():
 		# end for
 		$JingleBells.stop()
 		$Music.play()
+		# Update score
+		$Score.add(1000)
 	# end if
 # end func _on_gift_moved

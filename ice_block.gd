@@ -9,6 +9,8 @@ enum State { IDLE, MOVING, BREAKING }
 @onready var sprite = $AnimatedSprite2D
 @onready var ray = PhysicsRayQueryParameters2D.create(Vector2.ZERO, Vector2.ZERO, -1, [self])
 
+signal add_score
+
 func _ready():
 	ray.collide_with_areas = true
 	sprite.animation = "idle"
@@ -65,6 +67,7 @@ func push(v: Vector2):
 			sprite.animation = "destroy"
 			sprite.play()
 			$Breaking.play()
+			add_score.emit(10)
 		else:
 			$Moving.play()
 		# end if
