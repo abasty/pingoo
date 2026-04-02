@@ -1,4 +1,4 @@
-# Sprites générators
+# Sprites generators
 
 * <https://sanderfrenken.github.io/Universal-LPC-Spritesheet-Character-Generator/>
 * <https://retro-sprite-creator.nihey.org/character/new>
