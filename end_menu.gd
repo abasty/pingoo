@@ -14,7 +14,7 @@ func show_win():
 	mode = OverlayMode.WIN
 	var game_state = get_node("/root/GameState")
 	$CenterContainer/VBoxContainer/Label.show()
-	$CenterContainer/VBoxContainer/Label.text = "Niveau termine !"
+	$CenterContainer/VBoxContainer/Label.text = "Niveau terminé !"
 	$CenterContainer/VBoxContainer/PrimaryButton.text = "Continuer vers niveau %d" % game_state.current_level
 	$CenterContainer/VBoxContainer/SecondaryButton.text = "Abandonner niveau"
 	show()
