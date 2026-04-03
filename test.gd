@@ -127,24 +127,20 @@ func _on_gift_moved():
 		return
 	# end if
 
-	var coords = [7, 5, 9]
-	var first = gifts[0].global_position
-	# Test if all gifts are on the same line
-	if gifts.all(func(gift): return gift.global_position.y == first.y):
-		# Map gifts to their x position
-		coords = gifts.map(func(gift): return gift.global_position.x / 40)
-	# Test if all gifts are on the same column
-	elif gifts.all(func(gift): return gift.global_position.x == first.x):
-		# Map gifts to their y position
-		coords = gifts.map(func(gift): return gift.global_position.y / 40)
-	# end if
-	# Test if all gifts join together in alignment
-	coords.sort()
-	first = coords[0]
-	# Compute delta between each element and the first one
-	coords = coords.map(func(coord): return coord - first)
-	# Test if the elements are sequential
-	if coords.all(func(coord): return coord == coords.find(coord)):
-		_complete_level()
+	var first = gifts[0].position
+	# Test if all gifts are on the same row using local board coordinates.
+	if gifts.all(func(gift): return is_equal_approx(gift.position.y, first.y)):
+		var columns = gifts.map(func(gift): return int(round(gift.position.x / 40.0)))
+		columns.sort()
+		if columns[1] == columns[0] + 1 and columns[2] == columns[1] + 1:
+			_complete_level()
+		# end if
+	# Test if all gifts are on the same column using local board coordinates.
+	elif gifts.all(func(gift): return is_equal_approx(gift.position.x, first.x)):
+		var rows = gifts.map(func(gift): return int(round(gift.position.y / 40.0)))
+		rows.sort()
+		if rows[1] == rows[0] + 1 and rows[2] == rows[1] + 1:
+			_complete_level()
+		# end if
 	# end if
 # end func _on_gift_moved
