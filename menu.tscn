@@ -29,8 +29,12 @@ horizontal_alignment = 1
 [node name="PlayButton" type="Button" parent="VBoxContainer"]
 text = "Jouer"
 
+[node name="FullscreenButton" type="Button" parent="VBoxContainer"]
+text = "Plein ecran"
+
 [node name="QuitButton" type="Button" parent="VBoxContainer"]
 text = "Quitter"
 
 [connection signal="pressed" from="VBoxContainer/PlayButton" to="." method="_on_play_pressed"]
+[connection signal="pressed" from="VBoxContainer/FullscreenButton" to="." method="_on_fullscreen_pressed"]
 [connection signal="pressed" from="VBoxContainer/QuitButton" to="." method="_on_quit_pressed"]

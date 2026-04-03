@@ -1,11 +1,11 @@
-[gd_scene load_steps=2 format=3 uid="uid://dlbph0y3qrme5"]
+[gd_scene format=3 uid="uid://dlbph0y3qrme5"]
 
 [ext_resource type="Texture2D" uid="uid://c7yoi5vx1clyi" path="res://media/playbackground.png" id="1_dtuh7"]
 
-[node name="Background" type="Node2D"]
+[node name="Background" type="Node2D" unique_id=330315136]
 texture_repeat = 2
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1273329564]
 texture = ExtResource("1_dtuh7")
 centered = false
 region_enabled = true
