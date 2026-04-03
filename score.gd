@@ -12,11 +12,15 @@ var value = 0
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	set_display_value(0)
+	var game_state = get_node("/root/GameState")
+	target_value = game_state.current_score
+	set_display_value(game_state.current_score)
 # end func _ready
 
 func add(score):
 	target_value += score
+	var game_state = get_node("/root/GameState")
+	game_state.current_score = target_value
 # end func add
 
 # set the value of the display

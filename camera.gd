@@ -1,11 +1,11 @@
 extends Camera2D
 
-@export var game_size = 800
+@export var game_size = Vector2(800, 848)
 var last_viewport_size = Vector2.ZERO
 
 func _ready():
-	# Position camera at center of game
-	global_position = Vector2(game_size / 2.0, game_size / 2.0)
+	# Position camera at center of the full designed scene (HUD + board).
+	global_position = game_size / 2.0
 	make_current()
 	update_zoom()
 	last_viewport_size = get_viewport().get_visible_rect().size
@@ -23,7 +23,9 @@ func _process(_delta):
 func update_zoom():
 	var viewport = get_viewport()
 	var viewport_size = viewport.get_visible_rect().size
+	# Keep the full designed scene visible, preserving aspect ratio.
+	var fit_scale = minf(viewport_size.x / game_size.x, viewport_size.y / game_size.y)
 	# Camera2D uses inverse scaling: lower zoom values make the game appear larger.
-	var zoom_scale = float(game_size) / minf(viewport_size.x, viewport_size.y)
+	var zoom_scale = 1.0 / fit_scale
 	zoom = Vector2(zoom_scale, zoom_scale)
 # end func update_zoom

@@ -9,11 +9,12 @@ var blocks = []
 var gifts = []
 var trees = []
 var end_menu = null
+var level_completed = false
 
 func add_scene_child(scene, c: int, l: int):
 	var instance = scene.instantiate()
 	instance.position = Vector2(c * 40, l * 40)
-	add_child(instance)
+	$Board.add_child(instance)
 	return instance
 # end func add_scene_child
 
@@ -30,7 +31,7 @@ func add_gift_child(c: int, l: int):
 
 func add_block_child(c: int, l: int):
 	var block = add_scene_child(block_scene, c, l)
-	block.connect("add_score", $Score.add)
+	block.connect("add_score", $Hud/Score.add)
 	# Append the block to the list of blocks if it is not on the border
 	if c > 1 and l > 1 and c < 18 and l < 18:
 		blocks.append(block)
@@ -38,6 +39,12 @@ func add_block_child(c: int, l: int):
 # end func add_block_child
 
 func _ready():
+	var game_state = get_node("/root/GameState")
+	game_state.has_started_game = true
+	seed(game_state.current_level)
+	$Hud/LevelLabel.text = "Niveau: %d" % game_state.current_level
+	level_completed = false
+
 	for i in range(20):
 		add_tree_child(i, 0)
 		add_tree_child(i, 19)
@@ -73,7 +80,9 @@ func _ready():
 	# end for
 
 	# Make sure the score is on top of everything
-	$Score.set_z_index(1)
+	$Hud/HudBar.set_z_index(1)
+	$Hud/Score.set_z_index(1)
+	$Hud/LevelLabel.set_z_index(1)
 
 	# Instantiate end-of-game overlay
 	end_menu = end_menu_scene.instantiate()
@@ -90,6 +99,10 @@ func _unhandled_input(event):
 # end func _unhandled_input
 
 func _on_gift_moved():
+	if level_completed:
+		return
+	# end if
+
 	var coords = [7, 5, 9]
 	var first = gifts[0].global_position
 	# Test if all gifts are on the same line
@@ -108,6 +121,10 @@ func _on_gift_moved():
 	coords = coords.map(func(coord): return coord - first)
 	# Test if the elements are sequential
 	if coords.all(func(coord): return coord == coords.find(coord)):
+		level_completed = true
+		var game_state = get_node("/root/GameState")
+		game_state.next_level()
+
 		# Animate trees
 		for tree in trees:
 			tree.bling()
@@ -115,7 +132,7 @@ func _on_gift_moved():
 		$JingleBells.stop()
 		$Music.play()
 		# Update score
-		$Score.add(1000)
+		$Hud/Score.add(1000)
 		end_menu.show_win()
 	# end if
 # end func _on_gift_moved
