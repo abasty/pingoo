@@ -1,10 +1,9 @@
-[gd_scene load_steps=8 format=3 uid="uid://di0gtn0y48usn"]
+[gd_scene load_steps=7 format=3 uid="uid://di0gtn0y48usn"]
 
 [ext_resource type="PackedScene" uid="uid://dlbph0y3qrme5" path="res://background.tscn" id="1_0vndp"]
 [ext_resource type="Script" path="res://test.gd" id="1_c3vlf"]
 [ext_resource type="PackedScene" uid="uid://psiwsixrj8il" path="res://santa.tscn" id="2_dhdg8"]
 [ext_resource type="PackedScene" uid="uid://beb43lt343dt5" path="res://score.tscn" id="4_imv6t"]
-[ext_resource type="AudioStream" uid="uid://ch8fowiwv8758" path="res://media/jingle-bells.ogg" id="5_5uwxf"]
 [ext_resource type="AudioStream" uid="uid://veqea6dwrun3" path="res://media/7884.ogg" id="6_vyfx3"]
 [ext_resource type="Script" path="res://camera.gd" id="7_camera"]
 
@@ -38,10 +37,6 @@ offset_top = 14.0
 offset_right = 260.0
 offset_bottom = 37.0
 text = "Niveau: 1"
-
-[node name="JingleBells" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("5_5uwxf")
-autoplay = true
 
 [node name="Music" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("6_vyfx3")

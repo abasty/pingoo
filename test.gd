@@ -116,7 +116,6 @@ func _complete_level():
 	for tree in trees:
 		tree.bling()
 	# end for
-	$JingleBells.stop()
 	$Music.play()
 	# Update score
 	$Hud/Score.add(1000)

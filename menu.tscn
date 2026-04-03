@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://menu.gd" id="1_script"]
+[ext_resource type="AudioStream" uid="uid://ch8fowiwv8758" path="res://media/jingle-bells.ogg" id="2_music"]
 
 [node name="Menu" type="Control"]
 anchor_right = 1.0
@@ -52,6 +53,10 @@ text = "Plein ecran"
 
 [node name="QuitButton" type="Button" parent="CenterContainer/VBoxContainer"]
 text = "Quitter"
+
+[node name="JingleBells" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("2_music")
+autoplay = true
 
 [connection signal="pressed" from="CenterContainer/VBoxContainer/ContinueButton" to="." method="_on_continue_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/NewGameButton" to="." method="_on_new_game_pressed"]
