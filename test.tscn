@@ -29,14 +29,16 @@ offset_bottom = 48.0
 color = Color(0.06, 0.11, 0.2, 0.85)
 
 [node name="Score" parent="Hud" instance=ExtResource("4_imv6t")]
-position = Vector2(300, 4)
+position = Vector2(340, 8)
 
 [node name="LevelLabel" type="Label" parent="Hud"]
 offset_left = 12.0
-offset_top = 14.0
+offset_top = 0.0
 offset_right = 260.0
-offset_bottom = 37.0
+offset_bottom = 48.0
 text = "Niveau: 1"
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 24
 
 [node name="Music" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("6_vyfx3")
