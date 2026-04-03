@@ -2,13 +2,13 @@ extends Control
 
 func _ready():
 	_apply_visual_style()
-	_update_continue_button_text()
+	_update_continue_section()
 	_update_fullscreen_button_text()
 # end func _ready
 
 func _on_continue_pressed():
 	var game_state = get_node("/root/GameState")
-	if not game_state.has_started_game:
+	if game_state.current_level < 2:
 		return
 	# end if
 	get_tree().change_scene_to_file("res://test.tscn")
@@ -17,7 +17,7 @@ func _on_continue_pressed():
 func _on_new_game_pressed():
 	var game_state = get_node("/root/GameState")
 	game_state.reset_game()
-	_update_continue_button_text()
+	_update_continue_section()
 	get_tree().change_scene_to_file("res://test.tscn")
 # end func _on_new_game_pressed
 
@@ -42,11 +42,16 @@ func _update_fullscreen_button_text():
 	# end if
 # end func _update_fullscreen_button_text
 
-func _update_continue_button_text():
+func _update_continue_section():
 	var game_state = get_node("/root/GameState")
-	$CenterContainer/VBoxContainer/ContinueButton.disabled = not game_state.has_started_game
+	var can_continue = game_state.current_level >= 2
+	$CenterContainer/VBoxContainer/ContinueButton.disabled = not can_continue
 	$CenterContainer/VBoxContainer/ContinueButton.text = "Continuer"
-# end func _update_continue_button_text
+	$CenterContainer/VBoxContainer/ContinueInfoLabel.visible = can_continue
+	if can_continue:
+		$CenterContainer/VBoxContainer/ContinueInfoLabel.text = "Niveau courant: %d\nScore: %d" % [game_state.current_level, game_state.current_score]
+	# end if
+# end func _update_continue_section
 
 func _apply_visual_style():
 	var buttons = [
@@ -118,6 +123,9 @@ func _apply_visual_style():
 	quit_button.add_theme_stylebox_override("hover", quit_hover)
 	quit_button.add_theme_stylebox_override("pressed", quit_pressed)
 	quit_button.add_theme_stylebox_override("focus", quit_hover)
+
+	$CenterContainer/VBoxContainer/ContinueInfoLabel.add_theme_font_size_override("font_size", 18)
+	$CenterContainer/VBoxContainer/ContinueInfoLabel.modulate = Color(0.9, 0.94, 1.0)
 
 	$CenterContainer/VBoxContainer.add_theme_constant_override("separation", 14)
 # end func _apply_visual_style

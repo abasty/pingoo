@@ -40,7 +40,7 @@ func add_block_child(c: int, l: int):
 
 func _ready():
 	var game_state = get_node("/root/GameState")
-	game_state.has_started_game = true
+	game_state.start_level()
 	seed(game_state.current_level)
 	$Hud/LevelLabel.text = "Niveau: %d" % game_state.current_level
 	level_completed = false
@@ -90,6 +90,11 @@ func _ready():
 # end func _ready
 
 func _unhandled_input(event):
+	if OS.is_debug_build() and event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_T:
+		_complete_level()
+		return
+	# end if
+
 	if event.is_action_pressed("ui_cancel"):
 		if end_menu.visible:
 			end_menu.hide()
@@ -97,6 +102,26 @@ func _unhandled_input(event):
 			end_menu.show_pause()
 	# end if
 # end func _unhandled_input
+
+func _complete_level():
+	if level_completed:
+		return
+	# end if
+
+	level_completed = true
+	var game_state = get_node("/root/GameState")
+	game_state.next_level()
+
+	# Animate trees
+	for tree in trees:
+		tree.bling()
+	# end for
+	$JingleBells.stop()
+	$Music.play()
+	# Update score
+	$Hud/Score.add(1000)
+	end_menu.show_win()
+# end func _complete_level
 
 func _on_gift_moved():
 	if level_completed:
@@ -121,18 +146,6 @@ func _on_gift_moved():
 	coords = coords.map(func(coord): return coord - first)
 	# Test if the elements are sequential
 	if coords.all(func(coord): return coord == coords.find(coord)):
-		level_completed = true
-		var game_state = get_node("/root/GameState")
-		game_state.next_level()
-
-		# Animate trees
-		for tree in trees:
-			tree.bling()
-		# end for
-		$JingleBells.stop()
-		$Music.play()
-		# Update score
-		$Hud/Score.add(1000)
-		end_menu.show_win()
+		_complete_level()
 	# end if
 # end func _on_gift_moved

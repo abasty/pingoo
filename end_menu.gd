@@ -38,6 +38,10 @@ func _on_primary_button_pressed():
 # end func _on_primary_button_pressed
 
 func _on_secondary_button_pressed():
+	if mode == OverlayMode.PAUSE:
+		var game_state = get_node("/root/GameState")
+		game_state.abandon_level()
+	# end if
 	get_tree().change_scene_to_file("res://menu.tscn")
 # end func _on_secondary_button_pressed
 

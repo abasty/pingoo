@@ -20,7 +20,7 @@ func _ready():
 func add(score):
 	target_value += score
 	var game_state = get_node("/root/GameState")
-	game_state.current_score = target_value
+	game_state.add_score(score)
 # end func add
 
 # set the value of the display
