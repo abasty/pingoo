@@ -3,10 +3,12 @@ extends Node2D
 var tree_scene = preload("res://tree.tscn")
 var block_scene = preload("res://ice_block.tscn")
 var gift_scene = preload("res://gift.tscn")
+var end_menu_scene = preload("res://end_menu.tscn")
 
 var blocks = []
 var gifts = []
 var trees = []
+var end_menu = null
 
 signal add_score
 
@@ -74,7 +76,20 @@ func _ready():
 
 	# Make sure the score is on top of everything
 	$Score.set_z_index(1)
+
+	# Instantiate end-of-game overlay
+	end_menu = end_menu_scene.instantiate()
+	add_child(end_menu)
 # end func _ready
+
+func _unhandled_input(event):
+	if event.is_action_pressed("ui_cancel"):
+		if end_menu.visible:
+			end_menu.hide()
+		else:
+			end_menu.show_pause()
+	# end if
+# end func _unhandled_input
 
 func _on_gift_moved():
 	var coords = [7, 5, 9]
@@ -103,5 +118,6 @@ func _on_gift_moved():
 		$Music.play()
 		# Update score
 		$Score.add(1000)
+		end_menu.show_win()
 	# end if
 # end func _on_gift_moved
