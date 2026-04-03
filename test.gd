@@ -10,8 +10,6 @@ var gifts = []
 var trees = []
 var end_menu = null
 
-signal add_score
-
 func add_scene_child(scene, c: int, l: int):
 	var instance = scene.instantiate()
 	instance.position = Vector2(c * 40, l * 40)
