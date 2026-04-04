@@ -28,7 +28,6 @@ GameState="*res://game_state.gd"
 window/size/viewport_width=800
 window/size/viewport_height=848
 window/stretch/mode="canvas_items"
-window/stretch/aspect="keep"
 
 [editor]
 

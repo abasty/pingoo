@@ -42,6 +42,7 @@ func _ready():
 	var game_state = get_node("/root/GameState")
 	game_state.start_level()
 	seed(game_state.current_level)
+	$IntroSnow.setup([])
 	$Hud/LevelLabel.text = "Niveau: %d" % game_state.current_level
 	level_completed = false
 
