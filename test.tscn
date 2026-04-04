@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://di0gtn0y48usn"]
+[gd_scene load_steps=8 format=3 uid="uid://di0gtn0y48usn"]
 
 [ext_resource type="PackedScene" uid="uid://dlbph0y3qrme5" path="res://background.tscn" id="1_0vndp"]
 [ext_resource type="Script" path="res://test.gd" id="1_c3vlf"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://beb43lt343dt5" path="res://score.tscn" id="4_imv6t"]
 [ext_resource type="AudioStream" uid="uid://veqea6dwrun3" path="res://media/7884.ogg" id="6_vyfx3"]
 [ext_resource type="Script" path="res://camera.gd" id="7_camera"]
+[ext_resource type="Script" path="res://intro_snow.gd" id="8_snow"]
 
 [node name="test" type="Node2D"]
 script = ExtResource("1_c3vlf")
@@ -20,6 +21,13 @@ position = Vector2(400, 400)
 
 [node name="Camera2D" type="Camera2D" parent="."]
 script = ExtResource("7_camera")
+
+[node name="IntroSnow" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 48.0
+mouse_filter = 2
+script = ExtResource("8_snow")
 
 [node name="Hud" type="CanvasLayer" parent="."]
 

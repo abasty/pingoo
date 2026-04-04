@@ -26,10 +26,11 @@ func setup(_buttons: Array):
 # end func setup
 
 func _process(delta):
+	var viewport_size = get_viewport_rect().size
 	spawn_accumulator += delta * SPAWN_RATE
 	while spawn_accumulator >= 1.0 and _count_ambient_flakes() < AMBIENT_FLAKE_TARGET:
 		spawn_accumulator -= 1.0
-		_spawn_flake(Vector2(rng.randf_range(0.0, size.x), rng.randf_range(-24.0, 0.0)))
+		_spawn_flake(Vector2(rng.randf_range(0.0, viewport_size.x), rng.randf_range(-24.0, 0.0)))
 	# end while
 
 	_update_flakes(delta)
