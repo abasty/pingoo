@@ -13,19 +13,37 @@ func _ready():
 func show_win():
 	mode = OverlayMode.WIN
 	var game_state = get_node("/root/GameState")
-	$CenterContainer/VBoxContainer/Label.show()
-	$CenterContainer/VBoxContainer/Label.text = "Niveau terminé !"
-	$CenterContainer/VBoxContainer/PrimaryButton.text = "Continuer vers niveau %d" % game_state.current_level
-	$CenterContainer/VBoxContainer/SecondaryButton.text = "Abandonner niveau"
+	var label = get_node_or_null("CenterContainer/VBoxContainer/Label") as Label
+	var primary_button = get_node_or_null("CenterContainer/VBoxContainer/PrimaryButton") as Button
+	var secondary_button = get_node_or_null("CenterContainer/VBoxContainer/SecondaryButton") as Button
+	if label != null:
+		label.show()
+		label.text = "Niveau terminé !"
+	# end if
+	if primary_button != null:
+		primary_button.text = "Continuer vers niveau %d" % game_state.current_level
+	# end if
+	if secondary_button != null:
+		secondary_button.text = "Abandonner niveau"
+	# end if
 	show()
 # end func show_win
 
 func show_pause():
 	mode = OverlayMode.PAUSE
-	$CenterContainer/VBoxContainer/Label.show()
-	$CenterContainer/VBoxContainer/Label.text = "Pause"
-	$CenterContainer/VBoxContainer/PrimaryButton.text = "Revenir au jeu"
-	$CenterContainer/VBoxContainer/SecondaryButton.text = "Abandonner niveau"
+	var label = get_node_or_null("CenterContainer/VBoxContainer/Label") as Label
+	var primary_button = get_node_or_null("CenterContainer/VBoxContainer/PrimaryButton") as Button
+	var secondary_button = get_node_or_null("CenterContainer/VBoxContainer/SecondaryButton") as Button
+	if label != null:
+		label.show()
+		label.text = "Pause"
+	# end if
+	if primary_button != null:
+		primary_button.text = "Revenir au jeu"
+	# end if
+	if secondary_button != null:
+		secondary_button.text = "Abandonner niveau"
+	# end if
 	show()
 # end func show_pause
 
@@ -38,8 +56,11 @@ func _on_primary_button_pressed():
 # end func _on_primary_button_pressed
 
 func _on_secondary_button_pressed():
+	var game_state = get_node("/root/GameState")
+	var hall_of_fame = get_node("/root/HallOfFame")
+	hall_of_fame.update_level_highscore(game_state.current_level, game_state.current_level_score)
+
 	if mode == OverlayMode.PAUSE:
-		var game_state = get_node("/root/GameState")
 		game_state.abandon_level()
 	# end if
 	get_tree().change_scene_to_file("res://menu.tscn")

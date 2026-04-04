@@ -10,6 +10,7 @@ var gifts = []
 var trees = []
 var end_menu = null
 var level_completed = false
+var level_highscore_display = 0
 
 func add_scene_child(scene, c: int, l: int):
 	var instance = scene.instantiate()
@@ -43,7 +44,12 @@ func _ready():
 	game_state.start_level()
 	seed(game_state.current_level)
 	$IntroSnow.setup([])
-	$Hud/LevelLabel.text = "Niveau: %d" % game_state.current_level
+	var level_label = get_node_or_null("Hud/LevelLabel") as Label
+	if level_label != null:
+		level_label.text = "Niveau: %d" % game_state.current_level
+	# end if
+	level_highscore_display = _get_saved_level_highscore(game_state.current_level)
+	_update_level_highscore_label()
 	level_completed = false
 
 	for i in range(20):
@@ -84,15 +90,29 @@ func _ready():
 	$Hud/HudBar.set_z_index(1)
 	$Hud/Score.set_z_index(1)
 	$Hud/LevelLabel.set_z_index(1)
+	$Hud/LevelHighscoreLabel.set_z_index(1)
 
 	# Instantiate end-of-game overlay
 	end_menu = end_menu_scene.instantiate()
 	add_child(end_menu)
 # end func _ready
 
+func _process(_delta):
+	var game_state = get_node("/root/GameState")
+	if game_state.current_level_score > level_highscore_display:
+		level_highscore_display = game_state.current_level_score
+		_update_level_highscore_label()
+	# end if
+# end func _process
+
 func _unhandled_input(event):
 	if OS.is_debug_build() and event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_T:
 		_complete_level()
+		return
+	# end if
+
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_E:
+		_finish_run_and_return_to_menu()
 		return
 	# end if
 
@@ -111,7 +131,6 @@ func _complete_level():
 
 	level_completed = true
 	var game_state = get_node("/root/GameState")
-	game_state.next_level()
 
 	# Animate trees
 	for tree in trees:
@@ -120,6 +139,8 @@ func _complete_level():
 	$Music.play()
 	# Update score
 	$Hud/Score.add(1000)
+	_save_level_highscore(game_state.current_level)
+	game_state.next_level()
 	end_menu.show_win()
 # end func _complete_level
 
@@ -145,3 +166,30 @@ func _on_gift_moved():
 		# end if
 	# end if
 # end func _on_gift_moved
+
+func _get_saved_level_highscore(level: int) -> int:
+	var hall_of_fame = get_node("/root/HallOfFame")
+	return hall_of_fame.get_level_highscore(level)
+# end func _get_saved_level_highscore
+
+func _update_level_highscore_label():
+	var game_state = get_node("/root/GameState")
+	var highscore_label = get_node_or_null("Hud/LevelHighscoreLabel") as Label
+	if highscore_label != null:
+		highscore_label.text = "Record N%d: %d" % [game_state.current_level, level_highscore_display]
+	# end if
+# end func _update_level_highscore_label
+
+func _save_level_highscore(level: int):
+	var hall_of_fame = get_node("/root/HallOfFame")
+	hall_of_fame.update_level_highscore(level, level_highscore_display)
+# end func _save_level_highscore
+
+func _finish_run_and_return_to_menu():
+	var game_state = get_node("/root/GameState")
+	_save_level_highscore(game_state.current_level)
+	var hall_of_fame = get_node("/root/HallOfFame")
+	hall_of_fame.submit_score(game_state.player_name, game_state.current_score, game_state.current_level)
+	game_state.reset_game()
+	get_tree().change_scene_to_file("res://menu.tscn")
+# end func _finish_run_and_return_to_menu

@@ -22,6 +22,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 GameState="*res://game_state.gd"
+HallOfFame="*res://hall_of_fame.gd"
 
 [display]
 

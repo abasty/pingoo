@@ -246,6 +246,22 @@ When score changes:
 Each digit is a sprite with a moving `region_rect`, so the counter is rendered
 from a sprite sheet rather than text UI.
 
+## Hall Of Fame Architecture
+
+- When starting a new game, the user is asked for a pseudo
+- The 10 most great scores are recorded in persistent storage. A button in main
+  menu show the HoF screen.
+- For now there is no clear game termination, so we add a cheat shortcut 'E' to
+  simulate a game end in the game screen.
+- When adding a new top score, the score is added in the list with the pseudo
+  and the reached level
+- The HoF screen shows the 10 highest scores with ranking, pseudos, levels
+- In addition to the 10 highest scores, the highest score per level is saved in
+  the persistent database
+- The highscore for a given level is displayed at the top right of the play
+  screen. It is increased as soon the current level score is greater. The level
+  hiscore is saved when a level terminates
+
 ## Signals and Cross-Node Communication
 
 Signals are used sparingly and only where object-local logic needs to notify the

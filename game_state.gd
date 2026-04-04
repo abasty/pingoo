@@ -4,6 +4,7 @@ var current_level: int = 1
 var current_score: int = 0
 var current_level_score: int = 0
 var has_started_game: bool = false
+var player_name: String = "Player"
 
 func reset_game():
 	current_level = 1

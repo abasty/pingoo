@@ -48,6 +48,16 @@ text = "Niveau: 1"
 vertical_alignment = 1
 theme_override_font_sizes/font_size = 24
 
+[node name="LevelHighscoreLabel" type="Label" parent="Hud"]
+offset_left = 470.0
+offset_top = 0.0
+offset_right = 788.0
+offset_bottom = 48.0
+text = "Record N1: 0"
+horizontal_alignment = 2
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 20
+
 [node name="Music" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("6_vyfx3")
 volume_db = -12.0

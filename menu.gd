@@ -4,28 +4,65 @@ func _ready():
 	_apply_visual_style()
 	_update_continue_section()
 	_update_fullscreen_button_text()
+	var pseudo_line_edit = get_node_or_null("PseudoDialog/PseudoLineEdit") as LineEdit
+	if pseudo_line_edit != null and not pseudo_line_edit.text_submitted.is_connected(_on_pseudo_line_edit_text_submitted):
+		pseudo_line_edit.text_submitted.connect(_on_pseudo_line_edit_text_submitted)
+	# end if
 	$IntroSnow.setup([
 		$CenterContainer/VBoxContainer/NewGameButton,
 		$CenterContainer/VBoxContainer/ContinueButton,
 		$CenterContainer/VBoxContainer/FullscreenButton,
+		$CenterContainer/VBoxContainer/HallOfFameButton,
 		$CenterContainer/VBoxContainer/QuitButton
 	])
 # end func _ready
 
 func _on_continue_pressed():
 	var game_state = get_node("/root/GameState")
-	if game_state.current_level < 2:
+	if not game_state.has_started_game:
 		return
 	# end if
 	get_tree().change_scene_to_file("res://test.tscn")
 # end func _on_continue_pressed
 
 func _on_new_game_pressed():
+	var pseudo_line_edit = get_node_or_null("PseudoDialog/PseudoLineEdit") as LineEdit
+	if pseudo_line_edit != null:
+		pseudo_line_edit.text = ""
+	# end if
+	$PseudoDialog.popup_centered(Vector2(340, 130))
+	if pseudo_line_edit != null:
+		pseudo_line_edit.grab_focus()
+	# end if
+# end func _on_new_game_pressed
+
+func _on_pseudo_dialog_confirmed():
 	var game_state = get_node("/root/GameState")
+	var player_name = ""
+	var pseudo_line_edit = get_node_or_null("PseudoDialog/PseudoLineEdit") as LineEdit
+	if pseudo_line_edit != null:
+		player_name = pseudo_line_edit.text.strip_edges()
+	# end if
+	if player_name.is_empty():
+		player_name = "Player"
+	# end if
 	game_state.reset_game()
+	game_state.player_name = player_name
 	_update_continue_section()
 	get_tree().change_scene_to_file("res://test.tscn")
-# end func _on_new_game_pressed
+# end func _on_pseudo_dialog_confirmed
+
+func _on_pseudo_line_edit_text_submitted(_new_text: String):
+	if not $PseudoDialog.visible:
+		return
+	# end if
+	_on_pseudo_dialog_confirmed()
+	$PseudoDialog.hide()
+# end func _on_pseudo_line_edit_text_submitted
+
+func _on_hall_of_fame_button_pressed():
+	get_tree().change_scene_to_file("res://hall_of_fame_screen.tscn")
+# end func _on_hall_of_fame_button_pressed
 
 func _on_fullscreen_pressed():
 	if DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN:
@@ -41,21 +78,38 @@ func _on_quit_pressed():
 # end func _on_quit_pressed
 
 func _update_fullscreen_button_text():
+	var fullscreen_button = get_node_or_null("CenterContainer/VBoxContainer/FullscreenButton") as Button
+	if fullscreen_button == null:
+		return
+	# end if
+
 	if DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN:
-		$CenterContainer/VBoxContainer/FullscreenButton.text = "Quitter le plein ecran"
+		fullscreen_button.text = "Quitter le plein ecran"
 	else:
-		$CenterContainer/VBoxContainer/FullscreenButton.text = "Plein ecran"
+		fullscreen_button.text = "Plein ecran"
 	# end if
 # end func _update_fullscreen_button_text
 
 func _update_continue_section():
 	var game_state = get_node("/root/GameState")
-	var can_continue = game_state.current_level >= 2
-	$CenterContainer/VBoxContainer/ContinueButton.disabled = not can_continue
-	$CenterContainer/VBoxContainer/ContinueButton.text = "Continuer"
-	$CenterContainer/VBoxContainer/ContinueInfoLabel.visible = can_continue
+	var can_continue = game_state.has_started_game
+	var continue_button = get_node_or_null("CenterContainer/VBoxContainer/ContinueButton") as Button
+	var continue_info_label = get_node_or_null("CenterContainer/VBoxContainer/ContinueInfoLabel") as Label
+	if continue_button != null:
+		continue_button.disabled = not can_continue
+		continue_button.text = "Continuer"
+	# end if
+	if continue_info_label != null:
+		continue_info_label.visible = can_continue
+	# end if
 	if can_continue:
-		$CenterContainer/VBoxContainer/ContinueInfoLabel.text = "Niveau courant: %d\nScore: %d" % [game_state.current_level, game_state.current_score]
+		if continue_info_label != null:
+			var player_name = game_state.player_name.strip_edges()
+			if player_name.is_empty():
+				player_name = "Player"
+			# end if
+			continue_info_label.text = "Pseudo: %s\nNiveau courant: %d\nScore: %d" % [player_name, game_state.current_level, game_state.current_score]
+		# end if
 	# end if
 # end func _update_continue_section
 
@@ -64,6 +118,7 @@ func _apply_visual_style():
 		$CenterContainer/VBoxContainer/NewGameButton,
 		$CenterContainer/VBoxContainer/ContinueButton,
 		$CenterContainer/VBoxContainer/FullscreenButton,
+		$CenterContainer/VBoxContainer/HallOfFameButton,
 		$CenterContainer/VBoxContainer/QuitButton
 	]
 	var quit_button = $CenterContainer/VBoxContainer/QuitButton

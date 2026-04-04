@@ -59,8 +59,23 @@ horizontal_alignment = 1
 [node name="FullscreenButton" type="Button" parent="CenterContainer/VBoxContainer"]
 text = "Plein ecran"
 
+[node name="HallOfFameButton" type="Button" parent="CenterContainer/VBoxContainer"]
+text = "Hall Of Fame"
+
 [node name="QuitButton" type="Button" parent="CenterContainer/VBoxContainer"]
 text = "Quitter"
+
+[node name="PseudoDialog" type="AcceptDialog" parent="."]
+title = "Nouveau joueur"
+dialog_text = "Entrez votre pseudo"
+ok_button_text = "Demarrer"
+
+[node name="PseudoLineEdit" type="LineEdit" parent="PseudoDialog"]
+offset_left = 8.0
+offset_top = 40.0
+offset_right = 312.0
+offset_bottom = 64.0
+placeholder_text = "Pseudo"
 
 [node name="JingleBells" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("2_music")
@@ -69,4 +84,6 @@ autoplay = true
 [connection signal="pressed" from="CenterContainer/VBoxContainer/ContinueButton" to="." method="_on_continue_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/NewGameButton" to="." method="_on_new_game_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/FullscreenButton" to="." method="_on_fullscreen_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/HallOfFameButton" to="." method="_on_hall_of_fame_button_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/QuitButton" to="." method="_on_quit_pressed"]
+[connection signal="confirmed" from="PseudoDialog" to="." method="_on_pseudo_dialog_confirmed"]
