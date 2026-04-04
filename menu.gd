@@ -4,6 +4,12 @@ func _ready():
 	_apply_visual_style()
 	_update_continue_section()
 	_update_fullscreen_button_text()
+	$IntroSnow.setup([
+		$CenterContainer/VBoxContainer/NewGameButton,
+		$CenterContainer/VBoxContainer/ContinueButton,
+		$CenterContainer/VBoxContainer/FullscreenButton,
+		$CenterContainer/VBoxContainer/QuitButton
+	])
 # end func _ready
 
 func _on_continue_pressed():
