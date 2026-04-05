@@ -28,7 +28,8 @@ func show_win():
 		primary_button.text = "Continuer vers niveau %d" % game_state.current_level
 	# end if
 	if secondary_button != null:
-		secondary_button.text = "Abandonner niveau"
+		secondary_button.show()
+		secondary_button.text = "Menu principal"
 	# end if
 	show()
 # end func show_win

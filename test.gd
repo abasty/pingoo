@@ -171,7 +171,10 @@ func _unhandled_input(event):
 
 	if event.is_action_pressed("ui_cancel"):
 		if end_menu.visible:
-			end_menu.hide()
+			# Only dismiss the PAUSE overlay with ESC; WIN/FAIL/GAME_OVER require explicit button
+			if end_menu.mode == end_menu.OverlayMode.PAUSE:
+				end_menu.hide()
+			# end if
 		else:
 			end_menu.show_pause()
 	# end if
@@ -432,7 +435,7 @@ func _update_egg_spawning(_delta) -> void:
 
 		# Schedule next egg
 		if game_state.eggs_spawned < 3:
-			game_state.next_egg_spawn_time += 15.0
+			game_state.next_egg_spawn_time += 10.0
 # end func _update_egg_spawning
 
 func _spawn_monster_at_egg() -> void:

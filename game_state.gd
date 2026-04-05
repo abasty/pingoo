@@ -15,7 +15,7 @@ var level_time_left: float = LEVEL_TIME_SECONDS
 var egg_containers: Array[Vector2] = []  # Positions of 3 blocks containing eggs
 var eggs_destroyed: int = 0               # Count of eggs destroyed (0-3)
 var eggs_spawned: int = 0                 # Count of eggs that have hatched (0-3)
-var next_egg_spawn_time: float = 20.0    # Seconds elapsed until next egg hatches
+var next_egg_spawn_time: float = 10.0    # Seconds elapsed until next egg hatches
 var last_hatch_time: float = 0.0         # Level time when last egg hatched
 var monsters_crushed: int = 0             # Count of monsters crushed by blocks (0-3)
 var is_level_running: bool = false        # Whether the level is currently active
@@ -70,7 +70,7 @@ func reset_egg_state():
 	egg_containers.clear()
 	eggs_destroyed = 0
 	eggs_spawned = 0
-	next_egg_spawn_time = 20.0
+	next_egg_spawn_time = 10.0
 	last_hatch_time = 0.0
 	monsters_crushed = 0
 # end func reset_egg_state
