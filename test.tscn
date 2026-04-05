@@ -58,15 +58,6 @@ text = "Niveau: 1"
 vertical_alignment = 1
 theme_override_font_sizes/font_size = 24
 
-[node name="LevelHighscoreTitle" type="Label" parent="Hud"]
-offset_left = 474.0
-offset_top = 0.0
-offset_right = 640.0
-offset_bottom = 48.0
-text = "Record N1"
-vertical_alignment = 1
-theme_override_font_sizes/font_size = 20
-
 [node name="LevelHighscoreScore" parent="Hud" instance=ExtResource("4_imv6t")]
 position = Vector2(680, 8)
 initialize_from_game_state = false

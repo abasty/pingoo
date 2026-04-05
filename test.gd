@@ -105,7 +105,6 @@ func _ready():
 	$Hud/Score.set_z_index(1)
 	$Hud/ScoreRankLabel.set_z_index(1)
 	$Hud/LevelLabel.set_z_index(1)
-	$Hud/LevelHighscoreTitle.set_z_index(1)
 	$Hud/LevelHighscoreScore.set_z_index(1)
 	_update_live_hof_feedback()
 
@@ -195,12 +194,6 @@ func _get_saved_level_highscore(level: int) -> int:
 # end func _get_saved_level_highscore
 
 func _update_level_highscore_label():
-	var game_state = get_node("/root/GameState")
-	var highscore_title = get_node_or_null("Hud/LevelHighscoreTitle") as Label
-	if highscore_title != null:
-		highscore_title.text = "Record N%d" % game_state.current_level
-	# end if
-
 	var highscore_display = get_node_or_null("Hud/LevelHighscoreScore")
 	if highscore_display != null and highscore_display.has_method("set_target_value"):
 		highscore_display.set_target_value(level_highscore_display)
