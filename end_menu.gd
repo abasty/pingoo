@@ -1,8 +1,12 @@
 extends CanvasLayer
 
+signal level_resumed
+
 enum OverlayMode { PAUSE, WIN, FAIL, GAME_OVER }
+enum FailureType { TIMEOUT, MONSTER_COLLISION }
 
 var mode = OverlayMode.PAUSE
+var current_failure_type: FailureType = FailureType.TIMEOUT
 
 func _ready():
 	_apply_visual_style()
@@ -48,17 +52,26 @@ func show_pause():
 	show()
 # end func show_pause
 
-func show_fail(lives_left: int):
+func show_fail(lives_left: int, failure_type: FailureType = FailureType.TIMEOUT):
+	current_failure_type = failure_type
 	mode = OverlayMode.FAIL
 	var label = get_node_or_null("CenterContainer/VBoxContainer/Label") as Label
 	var primary_button = get_node_or_null("CenterContainer/VBoxContainer/PrimaryButton") as Button
 	var secondary_button = get_node_or_null("CenterContainer/VBoxContainer/SecondaryButton") as Button
 	if label != null:
 		label.show()
-		label.text = "Temps ecoule !\nVies restantes: %d" % lives_left
+		if failure_type == FailureType.MONSTER_COLLISION:
+			label.text = "Monstre!\nVies restantes: %d" % lives_left
+		else:
+			label.text = "Temps ecoule !\nVies restantes: %d" % lives_left
+		# end if
 	# end if
 	if primary_button != null:
-		primary_button.text = "Reessayer le niveau"
+		if failure_type == FailureType.MONSTER_COLLISION:
+			primary_button.text = "Continuer"
+		else:
+			primary_button.text = "Reessayer le niveau"
+		# end if
 	# end if
 	if secondary_button != null:
 		secondary_button.show()
@@ -89,7 +102,13 @@ func _on_primary_button_pressed():
 	if mode == OverlayMode.WIN:
 		get_tree().change_scene_to_file("res://test.tscn")
 	elif mode == OverlayMode.FAIL:
-		get_tree().change_scene_to_file("res://test.tscn")
+		if current_failure_type == FailureType.TIMEOUT:
+			# Timeout: restart the level
+			get_tree().change_scene_to_file("res://test.tscn")
+		else:
+			# Monster collision: resume from current state
+			_resume_level()
+		# end if
 	elif mode == OverlayMode.GAME_OVER:
 		var game_state = get_node("/root/GameState")
 		game_state.reset_game()
@@ -98,6 +117,17 @@ func _on_primary_button_pressed():
 		hide()
 	# end if
 # end func _on_primary_button_pressed
+
+func _resume_level() -> void:
+	"""Resume level gameplay without restarting or resetting the board."""
+	var game_state = get_node("/root/GameState")
+	game_state.is_level_running = true
+	# Monster was already removed during collision detection
+	# Board state is preserved; just unpause
+	mode = OverlayMode.PAUSE
+	hide()
+	level_resumed.emit()
+# end func _resume_level
 
 func _on_secondary_button_pressed():
 	var game_state = get_node("/root/GameState")
