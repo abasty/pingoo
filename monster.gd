@@ -5,6 +5,8 @@ class_name Monster
 const TILE_SIZE: int = 40
 const MOVE_SPEED: float = 120.0  # pixels/sec
 
+@onready var sprite: AnimatedSprite2D = get_node("AnimatedSprite2D")
+
 var target: Vector2
 
 var directions = [
@@ -67,6 +69,28 @@ func _choose_next_target() -> void:
 
 	current_direction = candidates[randi() % candidates.size()]
 	target = _tile_to_world(current_tile + current_direction)
+	_update_animation()
+
+func _update_animation() -> void:
+	"""Play the animation matching the current movement direction."""
+	if sprite == null:
+		return
+	# end if
+	if current_direction == Vector2i.ZERO:
+		sprite.stop()
+		return
+	# end if
+	if current_direction.x < 0:
+		sprite.animation = &"move-left"
+	elif current_direction.x > 0:
+		sprite.animation = &"move-right"
+	elif current_direction.y < 0:
+		sprite.animation = &"move-up"
+	else:
+		sprite.animation = &"move-down"
+	# end if
+	sprite.play()
+# end func _update_animation
 
 func _is_tile_free(tile_pos: Vector2i) -> bool:
 	"""Check if a tile contains no blocking entities."""
