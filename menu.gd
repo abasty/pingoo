@@ -30,6 +30,7 @@ func _on_new_game_pressed():
 	if pseudo_line_edit != null:
 		pseudo_line_edit.text = ""
 	# end if
+	$PseudoDialog.dialog_text = "Entrez un pseudo (3 caracteres minimum)"
 	$PseudoDialog.popup_centered(Vector2(340, 130))
 	if pseudo_line_edit != null:
 		pseudo_line_edit.grab_focus()
@@ -43,8 +44,13 @@ func _on_pseudo_dialog_confirmed():
 	if pseudo_line_edit != null:
 		player_name = pseudo_line_edit.text.strip_edges()
 	# end if
-	if player_name.is_empty():
-		player_name = "Player"
+	if player_name.length() < 3:
+		$PseudoDialog.dialog_text = "Pseudo invalide: minimum 3 caracteres"
+		$PseudoDialog.popup_centered(Vector2(340, 130))
+		if pseudo_line_edit != null:
+			pseudo_line_edit.grab_focus()
+		# end if
+		return
 	# end if
 	game_state.reset_game()
 	game_state.player_name = player_name

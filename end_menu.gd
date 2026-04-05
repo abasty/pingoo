@@ -1,6 +1,6 @@
 extends CanvasLayer
 
-enum OverlayMode { PAUSE, WIN }
+enum OverlayMode { PAUSE, WIN, FAIL, GAME_OVER }
 
 var mode = OverlayMode.PAUSE
 
@@ -42,14 +42,58 @@ func show_pause():
 		primary_button.text = "Revenir au jeu"
 	# end if
 	if secondary_button != null:
+		secondary_button.show()
 		secondary_button.text = "Abandonner niveau"
 	# end if
 	show()
 # end func show_pause
 
+func show_fail(lives_left: int):
+	mode = OverlayMode.FAIL
+	var label = get_node_or_null("CenterContainer/VBoxContainer/Label") as Label
+	var primary_button = get_node_or_null("CenterContainer/VBoxContainer/PrimaryButton") as Button
+	var secondary_button = get_node_or_null("CenterContainer/VBoxContainer/SecondaryButton") as Button
+	if label != null:
+		label.show()
+		label.text = "Temps ecoule !\nVies restantes: %d" % lives_left
+	# end if
+	if primary_button != null:
+		primary_button.text = "Reessayer le niveau"
+	# end if
+	if secondary_button != null:
+		secondary_button.show()
+		secondary_button.text = "Abandonner niveau"
+	# end if
+	show()
+# end func show_fail
+
+func show_game_over():
+	mode = OverlayMode.GAME_OVER
+	var label = get_node_or_null("CenterContainer/VBoxContainer/Label") as Label
+	var primary_button = get_node_or_null("CenterContainer/VBoxContainer/PrimaryButton") as Button
+	var secondary_button = get_node_or_null("CenterContainer/VBoxContainer/SecondaryButton") as Button
+	if label != null:
+		label.show()
+		label.text = "Plus de vies.\nPartie terminee."
+	# end if
+	if primary_button != null:
+		primary_button.text = "Retour au menu"
+	# end if
+	if secondary_button != null:
+		secondary_button.hide()
+	# end if
+	show()
+# end func show_game_over
+
 func _on_primary_button_pressed():
 	if mode == OverlayMode.WIN:
 		get_tree().change_scene_to_file("res://test.tscn")
+	elif mode == OverlayMode.FAIL:
+		get_tree().change_scene_to_file("res://test.tscn")
+	elif mode == OverlayMode.GAME_OVER:
+		var game_state = get_node("/root/GameState")
+		game_state.reset_game()
+		get_tree().change_scene_to_file("res://menu.tscn")
 	else:
 		hide()
 	# end if
@@ -62,6 +106,9 @@ func _on_secondary_button_pressed():
 
 	if mode == OverlayMode.PAUSE:
 		game_state.abandon_level()
+	# end if
+	if mode == OverlayMode.GAME_OVER:
+		return
 	# end if
 	get_tree().change_scene_to_file("res://menu.tscn")
 # end func _on_secondary_button_pressed

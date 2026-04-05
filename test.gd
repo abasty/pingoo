@@ -11,8 +11,12 @@ var trees = []
 var end_menu = null
 var level_completed = false
 var level_highscore_display = 0
+var is_applying_time_bonus = false
+var bonus_time_remaining = 0
+var bonus_tick_accumulator = 0.0
 
 const SCORE_DEFAULT_COLOR = Color(1.0, 1.0, 1.0, 1.0)
+const TIME_BONUS_TICK_SECONDS = 0.05
 const RANK_COLORS = {
 	1: Color(1.0, 0.85, 0.25, 1.0),
 	2: Color(0.86, 0.9, 0.97, 1.0),
@@ -62,6 +66,8 @@ func _ready():
 	if level_label != null:
 		level_label.text = "Niveau: %d" % game_state.current_level
 	# end if
+	_update_lives_label()
+	_update_timer_label()
 	level_highscore_display = _get_saved_level_highscore(game_state.current_level)
 	_update_level_highscore_label()
 	level_completed = false
@@ -105,7 +111,9 @@ func _ready():
 	$Hud/Score.set_z_index(1)
 	$Hud/ScoreRankLabel.set_z_index(1)
 	$Hud/LevelLabel.set_z_index(1)
+	$Hud/LivesLabel.set_z_index(1)
 	$Hud/LevelHighscoreScore.set_z_index(1)
+	$Hud/TimerLabel.set_z_index(1)
 	_update_live_hof_feedback()
 
 	# Instantiate end-of-game overlay
@@ -115,6 +123,16 @@ func _ready():
 
 func _process(_delta):
 	var game_state = get_node("/root/GameState")
+	if is_applying_time_bonus:
+		_process_time_bonus(_delta)
+	elif not level_completed and not end_menu.visible:
+		game_state.level_time_left = maxf(0.0, game_state.level_time_left - _delta)
+		_update_timer_label()
+		if game_state.level_time_left <= 0.0:
+			_on_level_timeout()
+		# end if
+	# end if
+
 	if game_state.current_level_score > level_highscore_display:
 		level_highscore_display = game_state.current_level_score
 		_update_level_highscore_label()
@@ -123,6 +141,10 @@ func _process(_delta):
 # end func _process
 
 func _unhandled_input(event):
+	if is_applying_time_bonus:
+		return
+	# end if
+
 	if OS.is_debug_build() and event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_T:
 		_complete_level()
 		return
@@ -156,6 +178,55 @@ func _complete_level():
 	$Music.play()
 	# Update score
 	$Hud/Score.add(1000)
+	bonus_time_remaining = maxi(0, int(floor(game_state.level_time_left)))
+	game_state.level_time_left = float(bonus_time_remaining)
+	_update_timer_label()
+	if bonus_time_remaining > 0:
+		is_applying_time_bonus = true
+		bonus_tick_accumulator = 0.0
+	else:
+		_finalize_level_win()
+	# end if
+# end func _complete_level
+
+func _process_time_bonus(delta):
+	if not is_applying_time_bonus:
+		return
+	# end if
+
+	bonus_tick_accumulator += delta
+	while bonus_tick_accumulator >= TIME_BONUS_TICK_SECONDS and is_applying_time_bonus:
+		bonus_tick_accumulator -= TIME_BONUS_TICK_SECONDS
+		if bonus_time_remaining <= 0:
+			_finalize_level_win()
+			break
+		# end if
+
+		bonus_time_remaining -= 1
+		var game_state = get_node("/root/GameState")
+		game_state.level_time_left = float(bonus_time_remaining)
+		$Hud/Score.add(10)
+		_update_timer_label()
+
+		if game_state.current_level_score > level_highscore_display:
+			level_highscore_display = game_state.current_level_score
+			_update_level_highscore_label()
+		# end if
+
+		if bonus_time_remaining <= 0:
+			_finalize_level_win()
+		# end if
+	# end while
+# end func _process_time_bonus
+
+func _finalize_level_win():
+	if not level_completed:
+		return
+	# end if
+	is_applying_time_bonus = false
+	bonus_tick_accumulator = 0.0
+
+	var game_state = get_node("/root/GameState")
 	if game_state.current_level_score > level_highscore_display:
 		level_highscore_display = game_state.current_level_score
 		_update_level_highscore_label()
@@ -163,7 +234,29 @@ func _complete_level():
 	_save_level_highscore(game_state.current_level)
 	game_state.next_level()
 	end_menu.show_win()
-# end func _complete_level
+# end func _finalize_level_win
+
+func _on_level_timeout():
+	if level_completed:
+		return
+	# end if
+
+	level_completed = true
+	var game_state = get_node("/root/GameState")
+	game_state.level_time_left = 0.0
+	_update_timer_label()
+	game_state.lose_life()
+	_update_lives_label()
+	game_state.abandon_level()
+	_update_live_hof_feedback()
+
+	if game_state.is_game_over():
+		_submit_game_over_score_if_top10(game_state)
+		end_menu.show_game_over()
+	else:
+		end_menu.show_fail(game_state.lives)
+	# end if
+# end func _on_level_timeout
 
 func _on_gift_moved():
 	if level_completed:
@@ -199,6 +292,30 @@ func _update_level_highscore_label():
 		highscore_display.set_target_value(level_highscore_display)
 	# end if
 # end func _update_level_highscore_label
+
+func _update_lives_label():
+	var game_state = get_node("/root/GameState")
+	var lives_label = get_node_or_null("Hud/LivesLabel") as Label
+	if lives_label != null:
+		lives_label.text = "Vies: %d" % game_state.lives
+	# end if
+# end func _update_lives_label
+
+func _update_timer_label():
+	var game_state = get_node("/root/GameState")
+	var timer_label = get_node_or_null("Hud/TimerLabel") as Label
+	if timer_label == null:
+		return
+	# end if
+
+	var seconds_left = maxi(0, int(ceil(game_state.level_time_left)))
+	timer_label.text = "%3ds" % seconds_left
+	if seconds_left <= 20:
+		timer_label.modulate = Color(1.0, 0.55, 0.55)
+	else:
+		timer_label.modulate = Color(0.9, 0.95, 1.0)
+	# end if
+# end func _update_timer_label
 
 func _save_level_highscore(level: int):
 	var hall_of_fame = get_node("/root/HallOfFame")
@@ -241,3 +358,17 @@ func _get_color_for_rank(rank: int) -> Color:
 	# end if
 	return SCORE_DEFAULT_COLOR
 # end func _get_color_for_rank
+
+func _submit_game_over_score_if_top10(game_state):
+	var hall_of_fame = get_node_or_null("/root/HallOfFame")
+	if hall_of_fame == null:
+		return
+	# end if
+
+	var rank := int(hall_of_fame.get_rank_for_score(game_state.current_score, game_state.current_level))
+	if rank <= 0:
+		return
+	# end if
+
+	hall_of_fame.submit_score(game_state.player_name, game_state.current_score, game_state.current_level)
+# end func _submit_game_over_score_if_top10

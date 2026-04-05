@@ -262,6 +262,25 @@ from a sprite sheet rather than text UI.
   screen. It is increased as soon the current level score is greater. The level
   hiscore is saved when a level terminates
 
+## Level Failure and Time Rules
+
+The runtime loop must include an explicit fail-state model per level.
+
+- A new game starts with `3` lives.
+- Each level has a `60` second countdown to complete the gift alignment goal.
+- The remaining time is visible in the gameplay HUD.
+- When the timer reaches `0`, the level is considered failed and the player
+  loses one life.
+- After a timeout failure, a dialog is shown with two actions:
+  - continue (retry the level)
+  - abandon (return to main menu)
+- When lives reach `0`, a game-over dialog is shown to explain that the run has
+  ended.
+- On level victory, the remaining time is converted to a score bonus:
+  - `time_bonus = remaining_seconds * 10`
+  - a short animation decrements the timer one second at a time while adding
+    `+10` score per second consumed.
+
 ## Signals and Cross-Node Communication
 
 Signals are used sparingly and only where object-local logic needs to notify the

@@ -58,11 +58,30 @@ text = "Niveau: 1"
 vertical_alignment = 1
 theme_override_font_sizes/font_size = 24
 
+[node name="LivesLabel" type="Label" parent="Hud"]
+offset_left = 214.0
+offset_top = 0.0
+offset_right = 334.0
+offset_bottom = 48.0
+text = "Vies: 3"
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 22
+
 [node name="LevelHighscoreScore" parent="Hud" instance=ExtResource("4_imv6t")]
 position = Vector2(680, 8)
 initialize_from_game_state = false
 write_to_game_state_on_add = false
 initial_value = 0
+
+[node name="TimerLabel" type="Label" parent="Hud"]
+offset_left = 560.0
+offset_top = 0.0
+offset_right = 680.0
+offset_bottom = 48.0
+text = "60s"
+horizontal_alignment = 2
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 22
 
 [node name="Music" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("6_vyfx3")
