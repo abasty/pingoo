@@ -20,10 +20,42 @@ var current_direction: Vector2i = Vector2i.ZERO
 
 func _ready():
 	add_to_group("monsters")
+	_build_sprite_frames(randi() % 8)
+	sprite.play()
 	# Ensure the monster is perfectly aligned to the grid to prevent diagonal drift.
 	position = _tile_to_world(_world_to_tile(position))
 	target = position
 	_choose_next_target()
+
+func _build_sprite_frames(color_index: int) -> void:
+	# monsters.png: 4 colors × 2 rows = 8 colors
+	# Each color block: 3 cols × 4 rows of 40×40px sprites = 120×160px
+	# Within each block — row 0: move-down, row 1: move-left, row 2: move-right, row 3: move-up
+	var texture: Texture2D = load("res://media/monsters.png")
+	var frames := SpriteFrames.new()
+	frames.remove_animation("default")
+	var cx: int = (color_index % 4) * 120  # color column offset
+	var cy: int = (color_index >> 2) * 160  # color row offset (0 or 160)
+	var anims := [
+		[&"move-down",  0],
+		[&"move-left",  40],
+		[&"move-right", 80],
+		[&"move-up",    120],
+	]
+	for anim in anims:
+		var anim_name: StringName = anim[0]
+		var row_offset: int = anim[1]
+		frames.add_animation(anim_name)
+		frames.set_animation_loop(anim_name, true)
+		frames.set_animation_speed(anim_name, 8.0)
+		for col in range(3):
+			var atlas := AtlasTexture.new()
+			atlas.atlas = texture
+			atlas.region = Rect2(cx + col * 40, cy + row_offset, 40, 40)
+			frames.add_frame(anim_name, atlas)
+	sprite.sprite_frames = frames
+	sprite.animation = &"move-down"
+# end func _build_sprite_frames
 
 func _process(delta):
 	# Move strictly tile-to-tile: only change direction once a tile destination is reached.
