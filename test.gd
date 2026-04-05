@@ -157,6 +157,10 @@ func _complete_level():
 	$Music.play()
 	# Update score
 	$Hud/Score.add(1000)
+	if game_state.current_level_score > level_highscore_display:
+		level_highscore_display = game_state.current_level_score
+		_update_level_highscore_label()
+	# end if
 	_save_level_highscore(game_state.current_level)
 	game_state.next_level()
 	end_menu.show_win()
@@ -205,7 +209,8 @@ func _update_level_highscore_label():
 
 func _save_level_highscore(level: int):
 	var hall_of_fame = get_node("/root/HallOfFame")
-	hall_of_fame.update_level_highscore(level, level_highscore_display)
+	var game_state = get_node("/root/GameState")
+	hall_of_fame.update_level_highscore(level, maxi(level_highscore_display, game_state.current_level_score))
 # end func _save_level_highscore
 
 func _finish_run_and_return_to_menu():
