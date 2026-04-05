@@ -12,6 +12,20 @@ var end_menu = null
 var level_completed = false
 var level_highscore_display = 0
 
+const SCORE_DEFAULT_COLOR = Color(1.0, 1.0, 1.0, 1.0)
+const RANK_COLORS = {
+	1: Color(1.0, 0.85, 0.25, 1.0),
+	2: Color(0.86, 0.9, 0.97, 1.0),
+	3: Color(0.9, 0.62, 0.42, 1.0),
+	4: Color(0.78, 0.9, 1.0, 1.0),
+	5: Color(0.72, 0.88, 1.0, 1.0),
+	6: Color(0.66, 0.86, 1.0, 1.0),
+	7: Color(0.62, 0.84, 1.0, 1.0),
+	8: Color(0.58, 0.82, 1.0, 1.0),
+	9: Color(0.54, 0.8, 1.0, 1.0),
+	10: Color(0.5, 0.78, 1.0, 1.0)
+}
+
 func add_scene_child(scene, c: int, l: int):
 	var instance = scene.instantiate()
 	instance.position = Vector2(c * 40, l * 40)
@@ -89,8 +103,11 @@ func _ready():
 	# Make sure the score is on top of everything
 	$Hud/HudBar.set_z_index(1)
 	$Hud/Score.set_z_index(1)
+	$Hud/ScoreRankLabel.set_z_index(1)
 	$Hud/LevelLabel.set_z_index(1)
-	$Hud/LevelHighscoreLabel.set_z_index(1)
+	$Hud/LevelHighscoreTitle.set_z_index(1)
+	$Hud/LevelHighscoreScore.set_z_index(1)
+	_update_live_hof_feedback()
 
 	# Instantiate end-of-game overlay
 	end_menu = end_menu_scene.instantiate()
@@ -103,6 +120,7 @@ func _process(_delta):
 		level_highscore_display = game_state.current_level_score
 		_update_level_highscore_label()
 	# end if
+	_update_live_hof_feedback()
 # end func _process
 
 func _unhandled_input(event):
@@ -174,9 +192,14 @@ func _get_saved_level_highscore(level: int) -> int:
 
 func _update_level_highscore_label():
 	var game_state = get_node("/root/GameState")
-	var highscore_label = get_node_or_null("Hud/LevelHighscoreLabel") as Label
-	if highscore_label != null:
-		highscore_label.text = "Record N%d: %d" % [game_state.current_level, level_highscore_display]
+	var highscore_title = get_node_or_null("Hud/LevelHighscoreTitle") as Label
+	if highscore_title != null:
+		highscore_title.text = "Record N%d" % game_state.current_level
+	# end if
+
+	var highscore_display = get_node_or_null("Hud/LevelHighscoreScore")
+	if highscore_display != null and highscore_display.has_method("set_target_value"):
+		highscore_display.set_target_value(level_highscore_display)
 	# end if
 # end func _update_level_highscore_label
 
@@ -193,3 +216,30 @@ func _finish_run_and_return_to_menu():
 	game_state.reset_game()
 	get_tree().change_scene_to_file("res://menu.tscn")
 # end func _finish_run_and_return_to_menu
+
+func _update_live_hof_feedback():
+	var game_state = get_node("/root/GameState")
+	var hall_of_fame = get_node_or_null("/root/HallOfFame")
+	if hall_of_fame == null:
+		return
+	# end if
+
+	var rank := int(hall_of_fame.get_rank_for_score(game_state.current_score, game_state.current_level))
+	var rank_label = get_node_or_null("Hud/ScoreRankLabel") as Label
+	if rank_label != null:
+		rank_label.text = "#%d" % rank if rank > 0 else ""
+		rank_label.modulate = _get_color_for_rank(rank)
+	# end if
+
+	var score_display = get_node_or_null("Hud/Score")
+	if score_display != null and score_display.has_method("set_tint_color"):
+		score_display.set_tint_color(_get_color_for_rank(rank))
+	# end if
+# end func _update_live_hof_feedback
+
+func _get_color_for_rank(rank: int) -> Color:
+	if rank > 0 and RANK_COLORS.has(rank):
+		return RANK_COLORS[rank]
+	# end if
+	return SCORE_DEFAULT_COLOR
+# end func _get_color_for_rank

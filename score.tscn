@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://score.gd" id="1_jm2dx"]
 
 [sub_resource type="Shader" id="Shader_white_digits"]
-code = "shader_type canvas_item;\n\nvoid fragment() {\n\tfloat a = texture(TEXTURE, UV).a;\n\tCOLOR = vec4(1.0, 1.0, 1.0, a);\n}\n"
+code = "shader_type canvas_item;\n\nuniform vec4 tint_color : source_color = vec4(1.0, 1.0, 1.0, 1.0);\n\nvoid fragment() {\n\tfloat a = texture(TEXTURE, UV).a;\n\tCOLOR = vec4(tint_color.rgb, tint_color.a * a);\n}\n"
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_white_digits"]
 shader = SubResource("Shader_white_digits")

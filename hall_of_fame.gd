@@ -18,6 +18,27 @@ func get_level_highscore(level: int) -> int:
 	return int(level_highscores.get(str(level), 0))
 # end func get_level_highscore
 
+func get_rank_for_score(score: int, reached_level: int) -> int:
+	if score <= 0:
+		return 0
+	# end if
+
+	var rank = 1
+	for entry in top_scores:
+		var entry_score = int(entry.get("score", 0))
+		var entry_level = int(entry.get("level", 0))
+		if score > entry_score or (score == entry_score and reached_level >= entry_level):
+			break
+		# end if
+		rank += 1
+	# end for
+
+	if rank > MAX_TOP_SCORES:
+		return 0
+	# end if
+	return rank
+# end func get_rank_for_score
+
 func submit_score(player_name: String, score: int, reached_level: int):
 	if score <= 0:
 		return

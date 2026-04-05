@@ -39,6 +39,16 @@ color = Color(0.06, 0.11, 0.2, 0.85)
 [node name="Score" parent="Hud" instance=ExtResource("4_imv6t")]
 position = Vector2(340, 8)
 
+[node name="ScoreRankLabel" type="Label" parent="Hud"]
+offset_left = 284.0
+offset_top = 0.0
+offset_right = 338.0
+offset_bottom = 48.0
+text = ""
+horizontal_alignment = 2
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 22
+
 [node name="LevelLabel" type="Label" parent="Hud"]
 offset_left = 12.0
 offset_top = 0.0
@@ -48,15 +58,20 @@ text = "Niveau: 1"
 vertical_alignment = 1
 theme_override_font_sizes/font_size = 24
 
-[node name="LevelHighscoreLabel" type="Label" parent="Hud"]
-offset_left = 470.0
+[node name="LevelHighscoreTitle" type="Label" parent="Hud"]
+offset_left = 474.0
 offset_top = 0.0
-offset_right = 788.0
+offset_right = 640.0
 offset_bottom = 48.0
-text = "Record N1: 0"
-horizontal_alignment = 2
+text = "Record N1"
 vertical_alignment = 1
 theme_override_font_sizes/font_size = 20
+
+[node name="LevelHighscoreScore" parent="Hud" instance=ExtResource("4_imv6t")]
+position = Vector2(680, 8)
+initialize_from_game_state = false
+write_to_game_state_on_add = false
+initial_value = 0
 
 [node name="Music" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("6_vyfx3")
