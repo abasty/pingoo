@@ -10,6 +10,7 @@ enum State { IDLE, MOVING, BREAKING }
 @onready var ray = PhysicsRayQueryParameters2D.create(Vector2.ZERO, Vector2.ZERO, -1, [self])
 
 var contains_egg: bool = false
+var pushed_monster = null
 
 signal add_score
 
@@ -26,14 +27,51 @@ func _ready():
 
 func move(delta):
 	if target == position:
-		ray.from = global_position + Vector2(20, 20)
-		ray.to = ray.from + velocity * 40
-		var collider = get_world_2d().direct_space_state.intersect_ray(ray)
-
-		if collider.is_empty():
-			target = position + velocity * 40
+		if pushed_monster != null and is_instance_valid(pushed_monster):
+			# Already pushing a monster — check if the tile beyond it is still free.
+			ray.from = pushed_monster.position + Vector2(20, 20)
+			ray.to = ray.from + velocity * 40
+			var collider = get_world_2d().direct_space_state.intersect_ray(ray)
+			if collider.is_empty():
+				target = position + velocity * 40  # Advance one more tile
+			else:
+				_crush_pushed_monster()  # Wall behind monster — crush it
+			# end if
+		elif pushed_monster != null:
+			# Monster was freed externally (e.g. another block).
+			if not is_instance_valid(pushed_monster):
+				pushed_monster = null
 		else:
-			state = State.IDLE
+			# Check for a monster on the next tile before the normal raycast.
+			var next_pos: Vector2 = position + velocity * 40
+			var monster_ahead = _find_monster_at_pos(next_pos)
+			if monster_ahead != null:
+				# Check if there is room beyond the monster.
+				ray.from = monster_ahead.position + Vector2(20, 20)
+				ray.to = ray.from + velocity * 40
+				var collider = get_world_2d().direct_space_state.intersect_ray(ray)
+				if collider.is_empty():
+					# Start pushing: block enters monster's tile, monster is pushed ahead.
+					pushed_monster = monster_ahead
+					monster_ahead.being_pushed = true
+					target = position + velocity * 40
+				else:
+					# No room — crush immediately, block stops.
+					monster_ahead.queue_free()
+					_crush_monster_award_bonus(1)
+					state = State.IDLE
+				# end if
+			else:
+				# Normal raycast: advance if free, stop otherwise.
+				ray.from = global_position + Vector2(20, 20)
+				ray.to = ray.from + velocity * 40
+				var collider = get_world_2d().direct_space_state.intersect_ray(ray)
+				if collider.is_empty():
+					target = position + velocity * 40
+				else:
+					state = State.IDLE
+				# end if
+			# end if
 		# end if
 	# end if
 
@@ -47,15 +85,54 @@ func move(delta):
 			sprite.animation = "right"
 			sprite.play()
 		# end if
-		position += (velocity * speed * delta).limit_length((target - position).length())
+		var movement = (velocity * speed * delta).limit_length((target - position).length())
+		position += movement
 		if position.is_equal_approx(target):
 			position = target
+		# end if
+		# Move the pushed monster by the same displacement as the block.
+		if pushed_monster != null and is_instance_valid(pushed_monster):
+			pushed_monster.position += movement
 		# end if
 	else:
 		sprite.pause()
 		$Moving.stop()
 	# end if
 # end func move
+
+func _find_monster_at_pos(pos: Vector2):
+	"""Return the monster whose current tile matches pos, or null."""
+	for monster in get_tree().get_nodes_in_group("monsters"):
+		if monster.position.distance_to(pos) < 20.0:
+			return monster
+		# end if
+	# end for
+	return null
+# end func _find_monster_at_pos
+
+func _crush_pushed_monster() -> void:
+	"""Crush the monster being pushed (it hit a wall) and stop the block."""
+	if pushed_monster != null and is_instance_valid(pushed_monster):
+		pushed_monster.queue_free()
+		_crush_monster_award_bonus(1)
+	else:
+		# Monster was already freed, just clean up the reference
+		if pushed_monster != null and not is_instance_valid(pushed_monster):
+			pushed_monster = null
+	# end if
+	pushed_monster = null
+	state = State.IDLE
+# end func _crush_pushed_monster
+
+func _release_pushed_monster() -> void:
+	"""Release a pushed monster, aligning it to the grid and re-enabling control."""
+	if pushed_monster != null and is_instance_valid(pushed_monster):
+		pushed_monster.being_pushed = false
+		# Snap to nearest grid position
+		pushed_monster.position = pushed_monster.position.round() / 40 * 40
+	# end if
+	pushed_monster = null
+# end func _release_pushed_monster
 
 func _process(delta):
 	if state == State.MOVING:

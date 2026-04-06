@@ -19,6 +19,7 @@ var directions = [
 ]
 
 var current_direction: Vector2i = Vector2i.ZERO
+var being_pushed: bool = false
 
 func _ready():
 	add_to_group("monsters")

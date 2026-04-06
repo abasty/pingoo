@@ -17,10 +17,13 @@ func _ready():
 
 func move(delta):
 	if target == position:
+		# Check for monsters on this tile and push them ahead
+		_push_monsters_on_this_tile()
+
+		# Normal raycast: advance if free, stop otherwise.
 		ray.from = global_position + Vector2(20, 20)
 		ray.to = ray.from + velocity * 40
 		var collider = get_world_2d().direct_space_state.intersect_ray(ray)
-
 		if collider.is_empty():
 			target = position + velocity * 40
 		else:
@@ -39,6 +42,55 @@ func move(delta):
 		gift_moved.emit()
 	# end if
 # end func move
+
+func _push_monsters_on_this_tile() -> void:
+	"""Push any monster on this tile one tile ahead in the gift's movement direction."""
+	if velocity == Vector2.ZERO:
+		return
+	# end if
+
+	var push_target: Vector2 = position + velocity * 40
+
+	for monster in get_tree().get_nodes_in_group("monsters"):
+		if monster.position.distance_to(position) < 20.0:
+			# Monster is on this tile. Push it one tile ahead.
+			if _is_position_free_for_monster(push_target):
+				# Free space ahead — move the monster there
+				monster.position = push_target
+			else:
+				# Obstacle ahead — crush the monster
+				monster.queue_free()
+				_crush_monster_award_bonus(1)
+			# end if
+		# end if
+	# end for
+# end func _push_monsters_on_this_tile
+
+func _is_position_free_for_monster(world_pos: Vector2) -> bool:
+	"""Check if a position is free for a monster (no trees, ice blocks, or gifts)."""
+	# Check for trees
+	for tree in get_tree().get_nodes_in_group("trees"):
+		if tree.position.distance_to(world_pos) < 1.0:
+			return false
+		# end if
+	# end for
+
+	# Check for ice blocks
+	for block in get_tree().get_nodes_in_group("ice_blocks"):
+		if block.position.distance_to(world_pos) < 1.0:
+			return false
+		# end if
+	# end for
+
+	# Check for other gifts
+	for other_gift in get_tree().get_nodes_in_group("gifts"):
+		if other_gift != self and other_gift.position.distance_to(world_pos) < 1.0:
+			return false
+		# end if
+	# end for
+
+	return true
+# end func _is_position_free_for_monster
 
 func _process(delta):
 	if state == State.MOVING:
