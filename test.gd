@@ -439,12 +439,21 @@ func _spawn_monster_at_egg() -> void:
 	if game_state.eggs_spawned >= game_state.egg_containers.size():
 		return
 
+	var egg_pos = game_state.egg_containers[game_state.eggs_spawned]
+
+	# Destroy the ice block containing the egg
+	var blocks = get_tree().get_nodes_in_group("ice_blocks")
+	for block in blocks:
+		if block.position.distance_to(egg_pos) < 1.0:
+			block.hatch()
+			break
+	# end for
+
 	var monster_scene = load("res://monster.tscn")
 	if monster_scene == null:
 		push_error("Could not load monster.tscn")
 		return
 
-	var egg_pos = game_state.egg_containers[game_state.eggs_spawned]
 	var monster = monster_scene.instantiate()
 	monster.position = egg_pos  # set BEFORE add_child so _ready() sees correct position
 	$Board.add_child(monster)

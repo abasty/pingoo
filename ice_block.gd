@@ -88,6 +88,17 @@ func _on_animated_sprite_2d_animation_finished():
 	queue_free()
 # end func _on_animated_sprite_2d_animation_finished
 
+func hatch() -> void:
+	"""Destroy this block when its egg hatches (animation + sound, no score penalty)."""
+	if state == State.BREAKING:
+		return
+	# end if
+	state = State.BREAKING
+	sprite.animation = "destroy"
+	sprite.play()
+	$Breaking.play()
+# end func hatch
+
 func _handle_egg_destruction() -> void:
 	"""Award bonus when an egg-containing block is destroyed."""
 	if not contains_egg:
