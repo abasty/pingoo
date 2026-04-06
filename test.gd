@@ -169,14 +169,8 @@ func _unhandled_input(event):
 		return
 	# end if
 
-	if event.is_action_pressed("ui_cancel"):
-		if end_menu.visible:
-			# Only dismiss the PAUSE overlay with ESC; WIN/FAIL/GAME_OVER require explicit button
-			if end_menu.mode == end_menu.OverlayMode.PAUSE:
-				end_menu.hide()
-			# end if
-		else:
-			end_menu.show_pause()
+	if event.is_action_pressed("ui_cancel") and not end_menu.visible:
+		end_menu.show_pause()
 	# end if
 # end func _unhandled_input
 
