@@ -137,9 +137,10 @@ func _process(_delta):
 	if is_applying_time_bonus:
 		_process_time_bonus(_delta)
 	elif not level_completed and not end_menu.visible:
+		var prev_time: float = game_state.level_time_left
 		game_state.level_time_left = maxf(0.0, game_state.level_time_left - _delta)
 		_update_timer_label()
-		if game_state.level_time_left <= 0.0:
+		if prev_time > 0.0 and game_state.level_time_left <= 0.0:
 			_on_level_timeout()
 		# end if
 		# Update egg spawning
@@ -253,21 +254,10 @@ func _on_level_timeout():
 		return
 	# end if
 
-	level_completed = true
+	# Time is up but the level continues — the player just won't earn a time bonus.
 	var game_state = get_node("/root/GameState")
 	game_state.level_time_left = 0.0
 	_update_timer_label()
-	game_state.lose_life()
-	_update_lives_label()
-	game_state.abandon_level()
-	_update_live_hof_feedback()
-
-	if game_state.is_game_over():
-		_submit_game_over_score_if_top10(game_state)
-		end_menu.show_game_over()
-	else:
-		end_menu.show_fail(game_state.lives)
-	# end if
 # end func _on_level_timeout
 
 func _on_gift_moved():
