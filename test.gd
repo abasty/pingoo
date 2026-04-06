@@ -49,6 +49,7 @@ func add_gift_child(c: int, l: int):
 	instance.add_to_group("gifts")
 	# Connect the gift_moved signal to the _on_gift_moved function
 	instance.connect("gift_moved", Callable(self, "_on_gift_moved"))
+	instance.connect("add_score", $Hud/Score.add)
 	gifts.append(instance)
 # end func add_gift_child
 
