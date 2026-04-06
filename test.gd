@@ -4,6 +4,7 @@ var tree_scene = preload("res://tree.tscn")
 var block_scene = preload("res://ice_block.tscn")
 var gift_scene = preload("res://gift.tscn")
 var end_menu_scene = preload("res://end_menu.tscn")
+var egg_indicator_scene = preload("res://egg_indicator.tscn")
 
 var blocks = []
 var gifts = []
@@ -38,18 +39,23 @@ func add_scene_child(scene, c: int, l: int):
 # end func add_scene_child
 
 func add_tree_child(c: int, l: int):
-	trees.append(add_scene_child(tree_scene, c, l))
+	var tree_instance = add_scene_child(tree_scene, c, l)
+	tree_instance.add_to_group("trees")
+	trees.append(tree_instance)
 # end func add_tree_child
 
 func add_gift_child(c: int, l: int):
 	var instance = add_scene_child(gift_scene, c, l)
+	instance.add_to_group("gifts")
 	# Connect the gift_moved signal to the _on_gift_moved function
 	instance.connect("gift_moved", Callable(self, "_on_gift_moved"))
+	instance.connect("add_score", $Hud/Score.add)
 	gifts.append(instance)
 # end func add_gift_child
 
 func add_block_child(c: int, l: int):
 	var block = add_scene_child(block_scene, c, l)
+	block.add_to_group("ice_blocks")
 	block.connect("add_score", $Hud/Score.add)
 	# Append the block to the list of blocks if it is not on the border
 	if c > 1 and l > 1 and c < 18 and l < 18:
@@ -106,6 +112,10 @@ func _ready():
 		blocks.erase(block)
 	# end for
 
+	# Select 3 blocks to contain eggs and spawn indicators
+	_select_egg_containers()
+	_spawn_egg_indicators()
+
 	# Make sure the score is on top of everything
 	$Hud/HudBar.set_z_index(1)
 	$Hud/Score.set_z_index(1)
@@ -119,6 +129,7 @@ func _ready():
 	# Instantiate end-of-game overlay
 	end_menu = end_menu_scene.instantiate()
 	add_child(end_menu)
+	end_menu.level_resumed.connect(_on_level_resumed)
 # end func _ready
 
 func _process(_delta):
@@ -126,11 +137,16 @@ func _process(_delta):
 	if is_applying_time_bonus:
 		_process_time_bonus(_delta)
 	elif not level_completed and not end_menu.visible:
+		var prev_time: float = game_state.level_time_left
 		game_state.level_time_left = maxf(0.0, game_state.level_time_left - _delta)
 		_update_timer_label()
-		if game_state.level_time_left <= 0.0:
+		if prev_time > 0.0 and game_state.level_time_left <= 0.0:
 			_on_level_timeout()
 		# end if
+		# Update egg spawning
+		_update_egg_spawning(_delta)
+		# Check for monster collisions
+		_check_monster_collisions()
 	# end if
 
 	if game_state.current_level_score > level_highscore_display:
@@ -155,11 +171,8 @@ func _unhandled_input(event):
 		return
 	# end if
 
-	if event.is_action_pressed("ui_cancel"):
-		if end_menu.visible:
-			end_menu.hide()
-		else:
-			end_menu.show_pause()
+	if event.is_action_pressed("ui_cancel") and not end_menu.visible:
+		end_menu.show_pause()
 	# end if
 # end func _unhandled_input
 
@@ -241,21 +254,10 @@ func _on_level_timeout():
 		return
 	# end if
 
-	level_completed = true
+	# Time is up but the level continues — the player just won't earn a time bonus.
 	var game_state = get_node("/root/GameState")
 	game_state.level_time_left = 0.0
 	_update_timer_label()
-	game_state.lose_life()
-	_update_lives_label()
-	game_state.abandon_level()
-	_update_live_hof_feedback()
-
-	if game_state.is_game_over():
-		_submit_game_over_score_if_top10(game_state)
-		end_menu.show_game_over()
-	else:
-		end_menu.show_fail(game_state.lives)
-	# end if
 # end func _on_level_timeout
 
 func _on_gift_moved():
@@ -372,3 +374,134 @@ func _submit_game_over_score_if_top10(game_state):
 
 	hall_of_fame.submit_score(game_state.player_name, game_state.current_score, game_state.current_level)
 # end func _submit_game_over_score_if_top10
+
+func _select_egg_containers() -> void:
+	"""Randomly select 3 ice blocks to contain eggs."""
+	var game_state = get_node("/root/GameState")
+	if blocks.size() < 3:
+		return  # Safety check
+
+	blocks.shuffle()
+	game_state.egg_containers = [] as Array[Vector2]
+
+	for i in range(3):
+		var block = blocks[i]
+		game_state.egg_containers.append(block.position)
+		block.contains_egg = true
+# end func _select_egg_containers
+
+func _spawn_egg_indicators() -> void:
+	"""Spawn visual egg indicator overlays for 3 seconds."""
+	var game_state = get_node("/root/GameState")
+	for pos in game_state.egg_containers:
+		var indicator = egg_indicator_scene.instantiate()
+		$Board.add_child(indicator)
+		indicator.position = pos  # pos is already in Board-local coordinates
+# end func _spawn_egg_indicators
+
+func _update_egg_spawning(_delta) -> void:
+	"""Check if the next egg should hatch and spawn a monster if so."""
+	var game_state = get_node("/root/GameState")
+	if not game_state.is_level_running:
+		return
+
+	var elapsed_time = game_state.LEVEL_TIME_SECONDS - game_state.level_time_left
+
+	# Check if next egg should spawn
+	if (elapsed_time >= game_state.next_egg_spawn_time and
+		game_state.eggs_spawned < 3 - game_state.eggs_destroyed):
+
+		# Spawn monster at the next egg container position
+		_spawn_monster_at_egg()
+
+		# Update counters
+		game_state.last_hatch_time = elapsed_time
+		game_state.eggs_spawned += 1
+
+		# Schedule next egg
+		if game_state.eggs_spawned < 3:
+			game_state.next_egg_spawn_time += 10.0
+# end func _update_egg_spawning
+
+func _spawn_monster_at_egg() -> void:
+	"""Instantiate a monster at the next available egg position."""
+	var game_state = get_node("/root/GameState")
+	if game_state.eggs_spawned >= game_state.egg_containers.size():
+		return
+
+	var egg_pos = game_state.egg_containers[game_state.eggs_spawned]
+
+	# Destroy the ice block containing the egg
+	var blocks = get_tree().get_nodes_in_group("ice_blocks")
+	for block in blocks:
+		if block.position.distance_to(egg_pos) < 1.0:
+			block.hatch()
+			break
+	# end for
+
+	var monster_scene = load("res://monster.tscn")
+	if monster_scene == null:
+		push_error("Could not load monster.tscn")
+		return
+
+	var monster = monster_scene.instantiate()
+	monster.position = egg_pos  # set BEFORE add_child so _ready() sees correct position
+	$Board.add_child(monster)
+# end func _spawn_monster_at_egg
+
+func _check_monster_collisions() -> void:
+	"""Check if any monster occupies Santa's tile."""
+	var game_state = get_node("/root/GameState")
+	if not game_state.is_level_running:
+		return
+
+	var santa_tile = $Board/Santa.position / 40
+	var monsters = get_tree().get_nodes_in_group("monsters")
+
+	for monster in monsters:
+		var monster_tile = monster.get_tile_position()
+		if santa_tile.distance_to(monster_tile) < 0.5:
+			# Collision!
+			_on_monster_collision(monster)
+			break
+# end func _check_monster_collisions
+
+func _on_level_resumed() -> void:
+	"""Called when the player resumes after a monster collision."""
+	level_completed = false
+# end func _on_level_resumed
+
+func _on_monster_collision(monster) -> void:
+	"""Handle monster collision with Santa."""
+	var game_state = get_node("/root/GameState")
+
+	# Remove the monster
+	monster.queue_free()
+
+	# Lose a life
+	game_state.lose_life()
+	_update_lives_label()
+	game_state.abandon_level()
+	_update_live_hof_feedback()
+
+	# Pause and show dialog
+	game_state.is_level_running = false
+	level_completed = true
+
+	# If game is over, show game-over dialog
+	if game_state.is_game_over():
+		_submit_game_over_score_if_top10(game_state)
+		end_menu.show_game_over()
+	else:
+		# Show fail dialog with monster-collision type
+		end_menu.show_fail(game_state.lives, end_menu.FailureType.MONSTER_COLLISION)
+	# end if
+# end func _on_monster_collision
+
+func _cleanup_level() -> void:
+	"""Clear all dynamic objects (monsters, eggs) before loading a new level."""
+	var monsters = get_tree().get_nodes_in_group("monsters")
+	for monster in monsters:
+		monster.queue_free()
+	# end for
+# end func _cleanup_level

@@ -1,16 +1,29 @@
 extends CanvasLayer
 
+signal level_resumed
+
 enum OverlayMode { PAUSE, WIN, FAIL, GAME_OVER }
+enum FailureType { TIMEOUT, MONSTER_COLLISION }
 
 var mode = OverlayMode.PAUSE
+var current_failure_type: FailureType = FailureType.TIMEOUT
 
 func _ready():
+	process_mode = Node.PROCESS_MODE_ALWAYS  # continue to work when tree is paused
 	_apply_visual_style()
 	_resize_overlay()
 	get_viewport().size_changed.connect(_on_viewport_size_changed)
 # end func _ready
 
+func _unhandled_input(event: InputEvent) -> void:
+	if visible and mode == OverlayMode.PAUSE and event.is_action_pressed("ui_cancel"):
+		get_tree().paused = false
+		hide()
+		get_viewport().set_input_as_handled()
+# end func _unhandled_input
+
 func show_win():
+	get_tree().paused = true
 	mode = OverlayMode.WIN
 	var game_state = get_node("/root/GameState")
 	var label = get_node_or_null("CenterContainer/VBoxContainer/Label") as Label
@@ -24,12 +37,14 @@ func show_win():
 		primary_button.text = "Continuer vers niveau %d" % game_state.current_level
 	# end if
 	if secondary_button != null:
-		secondary_button.text = "Abandonner niveau"
+		secondary_button.show()
+		secondary_button.text = "Menu principal"
 	# end if
 	show()
 # end func show_win
 
 func show_pause():
+	get_tree().paused = true
 	mode = OverlayMode.PAUSE
 	var label = get_node_or_null("CenterContainer/VBoxContainer/Label") as Label
 	var primary_button = get_node_or_null("CenterContainer/VBoxContainer/PrimaryButton") as Button
@@ -48,17 +63,27 @@ func show_pause():
 	show()
 # end func show_pause
 
-func show_fail(lives_left: int):
+func show_fail(lives_left: int, failure_type: FailureType = FailureType.TIMEOUT):
+	get_tree().paused = true
+	current_failure_type = failure_type
 	mode = OverlayMode.FAIL
 	var label = get_node_or_null("CenterContainer/VBoxContainer/Label") as Label
 	var primary_button = get_node_or_null("CenterContainer/VBoxContainer/PrimaryButton") as Button
 	var secondary_button = get_node_or_null("CenterContainer/VBoxContainer/SecondaryButton") as Button
 	if label != null:
 		label.show()
-		label.text = "Temps ecoule !\nVies restantes: %d" % lives_left
+		if failure_type == FailureType.MONSTER_COLLISION:
+			label.text = "Monstre!\nVies restantes: %d" % lives_left
+		else:
+			label.text = "Temps ecoule !\nVies restantes: %d" % lives_left
+		# end if
 	# end if
 	if primary_button != null:
-		primary_button.text = "Reessayer le niveau"
+		if failure_type == FailureType.MONSTER_COLLISION:
+			primary_button.text = "Continuer"
+		else:
+			primary_button.text = "Reessayer le niveau"
+		# end if
 	# end if
 	if secondary_button != null:
 		secondary_button.show()
@@ -68,6 +93,7 @@ func show_fail(lives_left: int):
 # end func show_fail
 
 func show_game_over():
+	get_tree().paused = true
 	mode = OverlayMode.GAME_OVER
 	var label = get_node_or_null("CenterContainer/VBoxContainer/Label") as Label
 	var primary_button = get_node_or_null("CenterContainer/VBoxContainer/PrimaryButton") as Button
@@ -87,19 +113,43 @@ func show_game_over():
 
 func _on_primary_button_pressed():
 	if mode == OverlayMode.WIN:
+		get_tree().paused = false
 		get_tree().change_scene_to_file("res://test.tscn")
 	elif mode == OverlayMode.FAIL:
-		get_tree().change_scene_to_file("res://test.tscn")
+		if current_failure_type == FailureType.TIMEOUT:
+			# Timeout: restart the level
+			get_tree().paused = false
+			get_tree().change_scene_to_file("res://test.tscn")
+		else:
+			# Monster collision: resume from current state
+			_resume_level()
+		# end if
 	elif mode == OverlayMode.GAME_OVER:
 		var game_state = get_node("/root/GameState")
 		game_state.reset_game()
+		get_tree().paused = false
 		get_tree().change_scene_to_file("res://menu.tscn")
 	else:
+		# PAUSE mode: resume gameplay
+		get_tree().paused = false
 		hide()
 	# end if
 # end func _on_primary_button_pressed
 
+func _resume_level() -> void:
+	"""Resume level gameplay without restarting or resetting the board."""
+	var game_state = get_node("/root/GameState")
+	game_state.is_level_running = true
+	# Monster was already removed during collision detection
+	# Board state is preserved; just unpause
+	mode = OverlayMode.PAUSE
+	get_tree().paused = false
+	hide()
+	level_resumed.emit()
+# end func _resume_level
+
 func _on_secondary_button_pressed():
+	get_tree().paused = false
 	var game_state = get_node("/root/GameState")
 	var hall_of_fame = get_node("/root/HallOfFame")
 	hall_of_fame.update_level_highscore(game_state.current_level, game_state.current_level_score)

@@ -281,6 +281,98 @@ The runtime loop must include an explicit fail-state model per level.
   - a short animation decrements the timer one second at a time while adding
     `+10` score per second consumed.
 
+## Monster System and Egg Mechanics
+
+Monsters are adversarial entities that add time-pressure and collision-based fail
+conditions to each level.
+
+### Egg placement and visibility
+
+- At level start, exactly 3 ice blocks are randomly selected to contain hidden
+  eggs.
+- During the first 3 seconds of the level, each block containing an egg is
+  outlined with a rounded-corner square (red border).
+- After 3 seconds, the visual indicators disappear, but eggs remain hidden inside
+  the blocks.
+
+### Egg hatching and spawn timing
+
+- The first egg hatches at `20` seconds of level time elapsed.
+- Subsequent eggs hatch every `15` seconds thereafter.
+- Eggs hatch at their original block location.
+- When an egg hatches, the egg container block is immediately removed from the
+  board.
+
+### Destroying egg-containing blocks
+
+If the player destroys an ice block that contains an egg by pushing it into a
+collision:
+
+- A special animated effect plays at the destruction point.
+- The player receives a bonus score immediately:
+  - 1st egg destroyed (bonus unlock): `200` points
+  - 2nd egg destroyed: `300` points
+  - 3rd egg destroyed: `500` points
+- The egg inside is permanently destroyed and will not spawn a monster.
+- The death count increments, and subsequent hatching uses the next available
+  egg (or spawns nothing if all eggs are destroyed).
+
+### Monster behavior
+
+When a monster spawns:
+
+- A `Monster` instance appears at the hatching block's coordinate.
+- The monster is initially rendered as a solid red square.
+- The monster moves semi-randomly between adjacent empty tiles, attempting to move
+  closer to Santa's position while incorporating random direction changes.
+- Movement follows the same tile-grid and interpolation pattern as other moving
+  objects.
+
+### Monster-player collision
+
+If a monster occupies the same tile as Santa:
+
+- The player immediately loses one life via `game_state.lose_life()`.
+- The monster is removed from the board.
+- The game is paused and an overlay dialog is shown with two actions:
+  - continue (resume the level from the current state with the same timer and board)
+  - abandon (return to main menu)
+- This mirrors the timeout-failure behavior, except lives are deducted by
+  collision rather than timer expiry.
+- **Important**: Choosing "continue" does **not** restart the level; it resumes
+  from the exact position, with the same timer, remaining monsters, and board
+  state intact.
+
+### Monster-block crush mechanics
+
+When the player pushes an ice block and it slides across one or more tiles to
+an empty space:
+
+- If a monster occupies any tile in the block's sliding path:
+  - The block carries the monster along during the slide.
+  - When the block stops, the monster is removed from the board (crushed).
+  - A score bonus is awarded immediately for each crushed monster:
+    - 1st monster crushed: `200` points
+    - 2nd monster crushed: `300` points
+    - 3rd monster crushed: `500` points
+  - The crush count increments; subsequent crushes use the next bonus tier.
+  - **Bonus multiplier**: If multiple monsters are crushed by the same block push,
+    each monster's bonus is multiplied by the total number of monsters crushed in
+    that single push. For example, if a block crushes 2 monsters, the first receives
+    `200 × 2 = 400` points and the second receives `300 × 2 = 600` points.
+- Monsters that are not directly in the block's path are unaffected and continue
+  their navigation behavior.
+- All monsters in the block's sliding path are crushed. If multiple monsters occupy
+  tiles in the path, each is crushed in sequence and awarded the appropriate bonus
+  tier based on the total crush count.
+
+### Visual rendering (placeholder and future)
+
+- Current representation: solid red `Rect2D` (no sprite).
+- Future enhancement: replace with an animated sprite sheet for variety. The
+  implementation should make sprite swapping straightforward by exporting the
+  sprite resource path or defining a fallback sprite material layer.
+
 ## Signals and Cross-Node Communication
 
 Signals are used sparingly and only where object-local logic needs to notify the
